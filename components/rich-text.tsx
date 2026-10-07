@@ -2,6 +2,10 @@
 import { Fragment } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { glossary } from '@/lib/glossary';
+import { lessons } from '@/lib/lessons';
+
+// Shared definitions plus each module's own.
+const terms: Record<string, string> = Object.assign({}, ...Object.values(lessons).map(l => l.glossary ?? {}), glossary);
 
 // Renders **bold**, *italic*, `code` and [[glossary term|label]] inside one line of lesson text.
 function Inline({ text }: { text: string }) {
@@ -11,7 +15,7 @@ function Inline({ text }: { text: string }) {
     if (part.startsWith('`')) return <code key={i}>{part.slice(1, -1)}</code>;
     if (part.startsWith('[[')) {
       const [term, label] = part.slice(2, -2).split('|');
-      const definition = glossary[term.toLowerCase()];
+      const definition = terms[term.toLowerCase()];
       if (!definition) return <Fragment key={i}>{label ?? term}</Fragment>;
       return <Popover key={i}>
         <PopoverTrigger className="term">{label ?? term}</PopoverTrigger>

@@ -36,6 +36,8 @@ export type Device = 'phone' | 'computer';
 
 export type Lesson = {
   intro: string;
+  // Extra tap-to-define terms used by this module (lowercase keys). Shared terms live in lib/glossary.ts.
+  glossary?: Record<string, string>;
   sections: LessonSection[];
   quiz: Question[];
   tasks: { device: Device; plain: string; done: string }[];
