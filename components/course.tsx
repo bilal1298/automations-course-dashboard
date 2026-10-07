@@ -47,7 +47,6 @@ export default function Course() {
             <small>{m.hours}h · {m.tasks.length} exercises{p.mastered ? ' · mastered' : p.started ? ` · ${pct}% built` : ''}</small>
             {p.started && !p.mastered && <Progress value={pct} />}
           </span>
-          {p.quiz && <span className="new-chip">Quiz</span>}
           <ChevronRight size={18} className="module-chevron" />
         </button>;
       })}</div>

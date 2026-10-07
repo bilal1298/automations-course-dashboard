@@ -7,8 +7,8 @@ import type { Lesson } from '../lib/lessons';
 // Also check unregistered files passed as arguments, e.g. `pnpm check:lessons m3 m4`.
 const extra = await Promise.all(process.argv.slice(2).map(async id => [id, (await import(`../lib/lessons/${id}.ts`))[id] as Lesson] as const));
 const lessons: Record<string, Lesson> = { ...registered, ...Object.fromEntries(extra) };
-
 const problems: string[] = [];
+
 const ids = new Set<string>();
 const allTerms = { ...glossary, ...Object.assign({}, ...Object.values(lessons).map(l => l.glossary ?? {})) };
 

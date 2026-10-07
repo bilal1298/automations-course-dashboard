@@ -7,6 +7,7 @@ import { sectionDone, clean, isUrl, moduleNumber, moduleProgress, modules, nextS
 import { useApp } from './app-context';
 import { QuizPanel, SectionView } from './lesson';
 import VideoPlayer from './video-player';
+import { ModuleGlossary } from './rich-text';
 
 export type Step = 'learn' | 'quiz' | 'build' | 'prove' | 'videos' | 'notes';
 const videoTime = (seconds: number) => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
@@ -218,7 +219,7 @@ export function StepPage({ m, step, index }: { m: Module; step: Step; index: num
     : step === 'videos' ? <VideosPage m={m} index={Math.max(index, 0)} />
     : step === 'notes' ? <NotesPage m={m} />
     : <LearnStep m={m} index={0} />;
-  return <main className="content narrow step-page"><StepHeader m={m} step={step} />{content}</main>;
+  return <main className="content narrow step-page"><ModuleGlossary value={p.lesson?.glossary ?? {}}><StepHeader m={m} step={step} />{content}</ModuleGlossary></main>;
 }
 
 function NextBarButton({ to, label }: { to: string; label: string }) {

@@ -1,21 +1,24 @@
 'use client';
-import { Fragment } from 'react';
+import { createContext, Fragment, useContext } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { glossary } from '@/lib/glossary';
 import { lessons } from '@/lib/lessons';
 
-// Shared definitions plus each module's own.
+// Shared definitions plus every module's own; the module being read wins (see ModuleGlossary).
 const terms: Record<string, string> = Object.assign({}, ...Object.values(lessons).map(l => l.glossary ?? {}), glossary);
+const LocalGlossary = createContext<Record<string, string>>({});
+export const ModuleGlossary = LocalGlossary.Provider;
 
 // Renders **bold**, *italic*, `code` and [[glossary term|label]] inside one line of lesson text.
 function Inline({ text }: { text: string }) {
+  const local = useContext(LocalGlossary);
   return text.split(/(\*\*[^*]+\*\*|\*[^*\s][^*]*\*|`[^`]+`|\[\[[^\]]+\]\])/g).map((part, i) => {
     if (part.startsWith('**')) return <strong key={i}>{part.slice(2, -2)}</strong>;
     if (part.length > 2 && part.startsWith('*') && part.endsWith('*')) return <em key={i}>{part.slice(1, -1)}</em>;
     if (part.startsWith('`')) return <code key={i}>{part.slice(1, -1)}</code>;
     if (part.startsWith('[[')) {
       const [term, label] = part.slice(2, -2).split('|');
-      const definition = terms[term.toLowerCase()];
+      const definition = local[term.toLowerCase()] ?? terms[term.toLowerCase()];
       if (!definition) return <Fragment key={i}>{label ?? term}</Fragment>;
       return <Popover key={i}>
         <PopoverTrigger className="term">{label ?? term}</PopoverTrigger>

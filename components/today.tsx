@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { BookOpen, Brain, CheckCircle2, Laptop, Smartphone, Sparkles, Zap } from 'lucide-react';
+import { BookOpen, Brain, CheckCircle2, Smartphone, Sparkles, Zap } from 'lucide-react';
 import curriculum from '@/lib/curriculum.json';
 import { allQuestions, lessons, type Question } from '@/lib/lessons';
 import type { Stored } from '@/lib/state';
@@ -16,6 +16,9 @@ export default function Today({ values, answer, go, loaded }: { values: Stored; 
   const answered = Object.keys(values).filter(k => k.startsWith('srs:') && allQuestions[k.slice(4)]);
   const due = answered.filter(k => isDue(values[k])).map(k => allQuestions[k.slice(4)]);
   const mastered = answered.filter(k => isMastered(values[k])).length;
+  const allSections = Object.values(lessons).flatMap(l => l.sections);
+  const lessonsTotal = allSections.length;
+  const lessonsDone = allSections.filter(s => sectionDone(values, s.check)).length;
 
   // The next lesson section whose check hasn't been done yet.
   const nextSection = Object.entries(lessons).flatMap(([mid, lesson]) => lesson.sections.map((s, i) => ({ mid, i, s }))).find(x => !sectionDone(values, x.s.check));
@@ -63,7 +66,7 @@ export default function Today({ values, answer, go, loaded }: { values: Stored; 
     <div className="stats-strip today-stats">
       <div><Sparkles /><span><strong>{answered.length}</strong>Questions answered</span></div>
       <div><CheckCircle2 /><span><strong>{mastered}</strong>Remembered over time</span></div>
-      <div><Laptop /><span><strong>{Object.keys(lessons).length} <em>/ 16</em></strong>Modules with quizzes</span></div>
+      <div><BookOpen /><span><strong>{lessonsDone} <em>/ {lessonsTotal}</em></strong>Lessons completed</span></div>
     </div>
   </main>;
 }
