@@ -3,10 +3,11 @@ import { Fragment } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { glossary } from '@/lib/glossary';
 
-// Renders **bold**, `code` and [[glossary term|label]] inside one line of lesson text.
+// Renders **bold**, *italic*, `code` and [[glossary term|label]] inside one line of lesson text.
 function Inline({ text }: { text: string }) {
-  return text.split(/(\*\*[^*]+\*\*|`[^`]+`|\[\[[^\]]+\]\])/g).map((part, i) => {
+  return text.split(/(\*\*[^*]+\*\*|\*[^*\s][^*]*\*|`[^`]+`|\[\[[^\]]+\]\])/g).map((part, i) => {
     if (part.startsWith('**')) return <strong key={i}>{part.slice(2, -2)}</strong>;
+    if (part.length > 2 && part.startsWith('*') && part.endsWith('*')) return <em key={i}>{part.slice(1, -1)}</em>;
     if (part.startsWith('`')) return <code key={i}>{part.slice(1, -1)}</code>;
     if (part.startsWith('[[')) {
       const [term, label] = part.slice(2, -2).split('|');
