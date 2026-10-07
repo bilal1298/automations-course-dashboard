@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import ServiceWorkerRegister from "@/components/sw-register";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-import "./globals.css";
+import "./app.css";
 
 export const metadata: Metadata = {
   title: "Automation Academy | Your learning workspace",
