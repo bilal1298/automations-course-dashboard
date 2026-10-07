@@ -3,7 +3,7 @@ import { ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, ChevronRight, Cir
 import { Checkbox } from '@/components/ui/checkbox';
 import { handbook } from '@/lib/handbook';
 import { PASS_MARK } from '@/lib/lessons';
-import { sectionDone, clean, isUrl, moduleNumber, moduleProgress, modules, nextStep, type Module } from '@/lib/progress';
+import { autoTask, taskDone, TEST_OUT, sectionDone, clean, isUrl, moduleNumber, moduleProgress, modules, nextStep, type Module } from '@/lib/progress';
 import { useApp } from './app-context';
 import { QuizPanel, SectionView } from './lesson';
 import VideoPlayer from './video-player';
@@ -27,7 +27,7 @@ export function ModuleOverview({ m }: { m: Module }) {
   const phoneTasks = p.lesson?.tasks.filter(t => t.device === 'phone').length ?? 0;
   const lessonMinutes = p.lesson?.sections.reduce((n, s) => n + s.minutes, 0) ?? 0;
   const steps = [
-    { id: 'learn', icon: BookOpen, title: 'Learn', desc: p.lesson ? `${p.learn.total} short lessons with quick checks · ${lessonMinutes} min` : 'Read the lesson · about 15 min', status: p.lesson ? `${p.learn.done}/${p.learn.total}` : p.learn.complete ? 'Read' : '', complete: p.learn.complete },
+    { id: 'learn', icon: BookOpen, title: 'Learn', desc: p.lesson ? `${p.learn.total} short lessons with quick checks · ${lessonMinutes} min` : 'Read the lesson · about 15 min', status: p.learn.testedOut && p.learn.done < p.learn.total ? 'Tested out' : p.lesson ? `${p.learn.done}/${p.learn.total}` : p.learn.complete ? 'Read' : '', complete: p.learn.complete },
     { id: 'quiz', icon: ListChecks, title: 'Quiz', desc: p.quiz ? `${p.quiz.questions} scenario questions · pass at ${PASS_MARK}%` : 'Coming soon for this module', status: p.quiz?.best != null ? `${p.quiz.best}%` : '', complete: !!p.quiz?.passed && p.quiz.best !== null, locked: !p.quiz },
     { id: 'build', icon: Hammer, title: 'Build', desc: `${m.tasks.length} hands-on exercises${phoneTasks ? ` · ${phoneTasks} work on your phone` : ''}`, status: `${p.build.done}/${p.build.total}`, complete: p.build.complete },
     { id: 'prove', icon: ShieldCheck, title: 'Prove', desc: 'Mastery check: link your evidence and sign off', status: p.mastered ? 'Mastered' : '', complete: p.mastered },
@@ -38,6 +38,7 @@ export function ModuleOverview({ m }: { m: Module }) {
     <h1>{clean(m.title)}</h1>
     <p className="page-subtitle">{m.outcome}</p>
     <button className="primary continue-button" onClick={() => go(next.route)}><span><small>{p.mastered ? 'Module mastered' : p.started ? 'Continue' : 'Start here'}</small>{next.label}</span><ArrowRight size={20} /></button>
+    {!p.started && p.quiz && <p className="testout-note">Already know this? Take the quiz first: {TEST_OUT}% or more skips the lessons.</p>}
     <ol className="path">
       {steps.map((s, i) => <li key={s.id}>
         <button className={`path-step ${s.complete ? 'complete' : ''}`} disabled={s.locked} onClick={() => go(`learn/${m.id}/${s.id}`)}>
@@ -50,7 +51,7 @@ export function ModuleOverview({ m }: { m: Module }) {
     </ol>
     <h2 className="extras-heading">Extras</h2>
     <div className="extras">
-      <button className="extra-row" onClick={() => go(`learn/${m.id}/videos`)}><Play size={18} /><span>Videos<small>{m.videos.length} curated {m.videos.length === 1 ? 'clip' : 'clips'}</small></span><ChevronRight size={16} /></button>
+      {m.videos.length > 0 && <button className="extra-row" onClick={() => go(`learn/${m.id}/videos`)}><Play size={18} /><span>Videos<small>{m.videos.length} curated {m.videos.length === 1 ? 'clip' : 'clips'}</small></span><ChevronRight size={16} /></button>}
       <button className="extra-row" onClick={() => go(`learn/${m.id}/notes`)}><NotebookPen size={18} /><span>My notes<small>{String(values[`note:${m.id}`] || '').length ? 'Saved' : 'Empty'}</small></span><ChevronRight size={16} /></button>
       {m.docs.map(doc => <button key={doc[1]} className="extra-row" onClick={() => openDoc(doc)}><FileText size={18} /><span>{doc[0]}<small>Official docs</small></span><ExternalLink size={15} /></button>)}
     </div>
@@ -124,9 +125,9 @@ function BuildList({ m }: { m: Module }) {
     <p className="muted step-intro">Hands-on exercises. Tick each one off when you can do it without help, and save your evidence.{p.lesson && ' 📱 exercises work on your phone.'}</p>
     <div className="task-list">{m.tasks.map((t, i) => {
       const plain = p.lesson?.tasks[i];
-      return <button key={i} className={`task-row ${values[`${m.id}-${i}`] ? 'done' : ''}`} onClick={() => go(`learn/${m.id}/build/${i}`)}>
-        {values[`${m.id}-${i}`] ? <CheckCircle2 size={20} /> : <Circle size={20} />}
-        <span><small>Exercise {i + 1}{plain && (plain.device === 'phone' ? ' · 📱 phone' : ' · 💻 computer')}</small>{plain ? plain.plain : shortTask(t[1])}</span>
+      return <button key={i} className={`task-row ${taskDone(m, i, values) ? 'done' : ''}`} onClick={() => go(`learn/${m.id}/build/${i}`)}>
+        {taskDone(m, i, values) ? <CheckCircle2 size={20} /> : <Circle size={20} />}
+        <span><small>Exercise {i + 1}{autoTask(m, i, values) && ' · done through the lessons'}{plain && (plain.device === 'phone' ? ' · phone-friendly' : ' · needs a computer')}</small>{plain ? plain.plain : shortTask(t[1])}</span>
         <ChevronRight size={16} />
       </button>;
     })}</div>
@@ -140,7 +141,8 @@ function BuildTask({ m, index }: { m: Module; index: number }) {
   const i = Math.min(index, m.tasks.length - 1);
   const task = m.tasks[i];
   const plain = p.lesson?.tasks[i];
-  const done = values[`${m.id}-${i}`] === true;
+  const done = taskDone(m, i, values);
+  const auto = autoTask(m, i, values);
   const related = m.videoDetails.map((d, v) => ({ d, v })).filter(({ d }) => d.taskIndices.includes(i));
   const last = i === m.tasks.length - 1;
   return <>
@@ -151,7 +153,7 @@ function BuildTask({ m, index }: { m: Module; index: number }) {
       ? <><div className="done-looks-like"><b>Done looks like</b><p>{plain.done}</p></div><details className="interview-version"><summary><FileText size={16} />Technical brief</summary><p>{task[1]}</p></details></>
       : <div className="done-looks-like"><b>Done looks like</b><p>{evidenceBrief[task[0]] ?? 'Build it from a clean starting point. Save the code or workflow, demonstrate the happy path, and capture a failure plus the recovery.'}</p></div>}
     {related.length > 0 && <div className="related-videos"><h3>Helpful videos</h3><div>{related.map(({ v }) => <button className="secondary" key={v} onClick={() => go(`learn/${m.id}/videos/${v}`)}><Play size={14} />{m.videos[v][0]}</button>)}</div></div>}
-    <label className={`completion-row ${done ? 'checked' : ''}`}><Checkbox disabled={!loaded} checked={done} onCheckedChange={v => { change(`${m.id}-${i}`, v === true); if (v !== true) change(`gate:${m.id}`, false); }} /><span><b>I can do this on my own</b><small>Tick it when you have evidence, not just familiarity.</small></span></label>
+    <label className={`completion-row ${done ? 'checked' : ''}`}><Checkbox disabled={!loaded || auto} checked={done} onCheckedChange={v => { change(`${m.id}-${i}`, v === true); if (v !== true) change(`gate:${m.id}`, false); }} /><span><b>I can do this on my own</b><small>{auto ? 'Done: you finished the lessons that cover this.' : 'Tick it when you have evidence, not just familiarity.'}</small></span></label>
     <NextBar back={i > 0 ? ['Previous', `learn/${m.id}/build/${i - 1}`] : undefined} next={last ? ['Next: Prove', `learn/${m.id}/prove`] : ['Next exercise', `learn/${m.id}/build/${i + 1}`]} />
   </>;
 }
@@ -163,19 +165,20 @@ function ProveStep({ m }: { m: Module }) {
   const p = moduleProgress(m, values);
   const idx = modules.indexOf(m);
   const items = [
+    { met: p.learn.complete, label: `All ${p.learn.total} lessons done (${p.learn.done}/${p.learn.total})`, action: !p.learn.complete && ['Open lessons', nextStep(m, values).route] },
     { met: p.build.complete, label: `All ${m.tasks.length} exercises ticked off (${p.build.done}/${p.build.total})`, action: !p.build.complete && ['Open exercises', `learn/${m.id}/build`] },
     ...(p.quiz ? [{ met: p.quiz.passed && p.quiz.best !== null, label: `Quiz score ${PASS_MARK}% or more${p.quiz.best !== null ? ` (best ${p.quiz.best}%)` : ''}`, action: !p.quiz.passed && ['Take the quiz', `learn/${m.id}/quiz`] }] : []),
   ] as { met: boolean; label: string; action: false | [string, string] }[];
   return <>
     <h2 className="step-title">Prove you can do it</h2>
-    <div className="gate-card"><span className="eyebrow">THE CHALLENGE · NO AI ASSISTANT</span><p>{m.gate}</p><small>Use docs, explain your trade-offs, and show one failure and how you recover from it.</small></div>
+    <div className="gate-card"><span className="eyebrow">THE CHALLENGE · NO AI ASSISTANT</span><p>{m.gate}</p><b className="gate-sub">To pass, show that:</b><ul className="gate-list">{m.gateChecks.map(g => <li key={g}>{g}</li>)}</ul><small>Docs are fine. Be ready to explain your choices and one failure you recovered from.</small></div>
     <ul className="gate-checklist">
       {items.map(item => <li key={item.label} className={item.met ? 'met' : ''}>{item.met ? <CheckCircle2 size={19} /> : <Circle size={19} />}<span>{item.label}{item.action && <button className="text-button" onClick={() => go(item.action ? item.action[1] : '')}>{item.action[0]}</button>}</span></li>)}
-      <li className={isUrl(p.evidence) ? 'met' : ''}>{isUrl(p.evidence) ? <CheckCircle2 size={19} /> : <Circle size={19} />}<span>Link to your evidence: a GitHub repo, Loom video or write-up<input type="url" disabled={!loaded} placeholder="https://github.com/…" value={p.evidence} maxLength={2000} onChange={e => change(`evidence:${m.id}`, e.target.value)} /></span></li>
+      <li className={isUrl(p.evidence) ? 'met' : ''}>{isUrl(p.evidence) ? <CheckCircle2 size={19} /> : <Circle size={19} />}<span>Link to your evidence: a GitHub repo, Loom video or write-up<input key={String(loaded)} type="url" aria-label="Evidence link" disabled={!loaded} placeholder="https://github.com/…" defaultValue={p.evidence} maxLength={2000} onChange={e => { const url = e.target.value.trim(); change(`evidence:${m.id}`, url); if (!isUrl(url)) change(`gate:${m.id}`, false); }} />{p.evidence && !isUrl(p.evidence) && <small className="field-hint">Paste the full link, starting with https://</small>}</span></li>
     </ul>
     <label className={`completion-row ${p.mastered ? 'checked' : ''}`}><Checkbox disabled={!loaded || !p.ready} checked={p.mastered} onCheckedChange={v => change(`gate:${m.id}`, v === true)} /><span><b>I passed the challenge</b><small>{p.ready ? 'Be honest. You’re the one who has to do this in an interview.' : 'Complete the checklist above to unlock this.'}</small></span></label>
     {p.mastered && <div className="success-note"><Trophy size={20} />Module mastered. Your evidence is the achievement.</div>}
-    <NextBar back={['Build', `learn/${m.id}/build`]} next={idx < modules.length - 1 ? ['Next module', `learn/${modules[idx + 1].id}`] : ['Career tracker', 'career']} />
+    <NextBar back={['Build', `learn/${m.id}/build`]} next={idx < modules.length - 1 ? ['Next module', `learn/${modules[idx + 1].id}`] : ['Career tracker', 'career']} quiet={!p.mastered} />
   </>;
 }
 
@@ -183,16 +186,17 @@ function ProveStep({ m }: { m: Module }) {
 
 function VideosPage({ m, index }: { m: Module; index: number }) {
   const { go } = useApp();
+  if (!m.videos.length) return <><h2 className="step-title">Videos</h2><p className="muted">This module has no videos yet. Everything you need is in the lessons.</p></>;
   const i = Math.min(index, m.videos.length - 1);
   const v = m.videos[i];
   const detail = m.videoDetails[i];
   const isClip = Number(v[3]) > 0;
   return <>
     <h2 className="step-title">Videos</h2>
-    <div className="video-list">{m.videos.map((video, j) => <button key={j} className={j === i ? 'active' : ''} onClick={() => go(`learn/${m.id}/videos/${j}`)}><Play size={15} /><span><b>{video[0]}</b><small>{m.videoDetails[j].creator} · {Number(video[3]) > 0 ? `${videoTime(Number(video[3]) - Number(video[2]))} clip` : 'Full video'}</small></span></button>)}</div>
     <h3 className="video-title">{v[0]}</h3>
     <p className="muted">{detail.focus}{isClip && ` Plays ${videoTime(Number(v[2]))}–${videoTime(Number(v[3]))} of the original.`}</p>
     <VideoPlayer key={String(v[1]) + i} video={v} />
+    <div className="video-list" aria-label="All videos in this module">{m.videos.map((video, j) => <button key={j} className={j === i ? 'active' : ''} onClick={() => go(`learn/${m.id}/videos/${j}`)}><Play size={15} /><span><b>{video[0]}</b><small>{m.videoDetails[j].creator} · {Number(video[3]) > 0 ? `${videoTime(Number(video[3]) - Number(video[2]))} clip` : 'Full video'}</small></span></button>)}</div>
     {detail.taskIndices.length > 0 && <button className="secondary practise-video" onClick={() => go(`learn/${m.id}/build/${detail.taskIndices[0]}`)}><Hammer size={15} />Practise this: exercise {detail.taskIndices[0] + 1}</button>}
   </>;
 }

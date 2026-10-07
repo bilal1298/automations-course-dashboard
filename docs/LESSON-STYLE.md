@@ -24,6 +24,7 @@ Reference implementations: `lib/lessons/m6.ts` (best example) and `lib/lessons/m
 
 ## Questions
 - Mostly **scenarios**: "this happened, what's wrong / what do you do?", reading a short log, spotting a bug in a few lines of code or SQL, predicting output. Few pure definitions.
+- **Wrong options must be believable**: real misconceptions a learner might hold, about the same length and detail as the correct one (the validator fails a module if the correct option is the longest in more than 40% of its questions). No joke options. Don't give only the correct option a “because…” clause.
 - `choice`: exactly 4 options, `answer: 0` (the correct one first; the UI shuffles), every option has a `why` explaining why it's right or wrong. Wrong options must be plausible mistakes, not jokes.
 - `order`: 3–5 items listed in the correct order (UI shuffles).
 - `explain`: one or two sentences, the takeaway.

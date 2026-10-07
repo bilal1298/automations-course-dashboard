@@ -1,13 +1,13 @@
 'use client';
 import { useState } from 'react';
-import { BookOpen, Brain, CheckCircle2, Smartphone, Sparkles, Zap } from 'lucide-react';
+import { BookOpen, Brain, CheckCircle2, ChevronRight, Smartphone, Sparkles, Zap } from 'lucide-react';
 import curriculum from '@/lib/curriculum.json';
 import { allQuestions, lessons, type Question } from '@/lib/lessons';
 import type { Stored } from '@/lib/state';
 import { isDue, isMastered, parse } from '@/lib/srs';
 import QuizRunner, { prepare, type Prepared } from './quiz';
 import type { AnswerFn } from './lesson';
-import { sectionDone } from '@/lib/progress';
+import { currentModule, learnState, modules, sectionDone } from '@/lib/progress';
 
 const clean = (t: string) => t.replace(/^\d+\. /, '');
 
@@ -20,13 +20,17 @@ export default function Today({ values, answer, go, loaded }: { values: Stored; 
   const lessonsTotal = allSections.length;
   const lessonsDone = allSections.filter(s => sectionDone(values, s.check)).length;
 
-  // The next lesson section whose check hasn't been done yet.
-  const nextSection = Object.entries(lessons).flatMap(([mid, lesson]) => lesson.sections.map((s, i) => ({ mid, i, s }))).find(x => !sectionDone(values, x.s.check));
-  // Quick practice: unanswered or weakest questions first, from modules you've started reading.
+  // The next unfinished lesson, starting from the module you're working on, then in course order.
+  const focus = currentModule(values);
+  const order = [focus, ...modules.filter(m => m !== focus)].filter(m => lessons[m.id] && !learnState(m, values).complete);
+  const nextSection = order.flatMap(m => lessons[m.id].sections.map((s, i) => ({ mid: m.id, i, s }))).find(x => !sectionDone(values, x.s.check));
+  // Quick practice: questions from lessons you've finished (and quizzes you've taken), missed ones first.
   const started = Object.entries(lessons).filter(([, l]) => l.sections.some(s => sectionDone(values, s.check)));
-  const practicePool = started.flatMap(([, l]) => [...l.sections.flatMap(s => s.check), ...l.quiz])
-    .sort((a, b) => (parse(values[`srs:${a.id}`])?.box ?? -1) - (parse(values[`srs:${b.id}`])?.box ?? -1));
-  const phoneTasks = Object.entries(lessons).flatMap(([mid, l]) => l.tasks.map((t, i) => ({ mid, i, t }))).filter(x => x.t.device === 'phone' && values[`${x.mid}-${x.i}`] !== true).slice(0, 3);
+  const rank = (id: string) => { const s = parse(values[`srs:${id}`]); return !s ? 1 : s.box === 0 ? 0 : 1 + s.box; };
+  const practicePool = started.flatMap(([mid, l]) => [...l.sections.filter(s => sectionDone(values, s.check)).flatMap(s => s.check), ...(values[`quiz:${mid}`] !== undefined ? l.quiz : [])])
+    .sort((a, b) => rank(a.id) - rank(b.id));
+  // Only suggest exercises from modules you've started reading, so day one isn't a wall of unfamiliar terms.
+  const phoneTasks = started.flatMap(([mid, l]) => l.tasks.map((t, i) => ({ mid, i, t }))).filter(x => x.t.device === 'phone' && values[`${x.mid}-${x.i}`] !== true).slice(0, 3);
 
   const run = (title: string, questions: Question[]) => setRunning({ title, questions: prepare(questions, true) });
 
@@ -54,13 +58,13 @@ export default function Today({ values, answer, go, loaded }: { values: Stored; 
 
     {practicePool.length > 0 && <section className="today-card">
       <span className="small-icon"><Zap size={20} /></span>
-      <div><h2>Quick practice</h2><p className="muted">5 questions from what you’ve started, weakest first.</p></div>
+      <div><h2>Quick practice</h2><p className="muted">5 questions from lessons you’ve finished, the ones you missed first.</p></div>
       <button className="secondary" disabled={!loaded} onClick={() => run('Quick practice', practicePool.slice(0, 5))}>Practise</button>
     </section>}
 
     {phoneTasks.length > 0 && <section className="today-card column">
       <div className="row"><span className="small-icon"><Smartphone size={20} /></span><div><h2>Phone-friendly exercises</h2><p className="muted">Things you can finish without a computer.</p></div></div>
-      {phoneTasks.map(x => <button key={`${x.mid}-${x.i}`} className="resource-row" onClick={() => go(`learn/${x.mid}/build/${x.i}`)}><span><Smartphone size={16} />{x.t.plain}</span></button>)}
+      {phoneTasks.map(x => <button key={`${x.mid}-${x.i}`} className="resource-row" onClick={() => go(`learn/${x.mid}/build/${x.i}`)}><span><Smartphone size={16} />{x.t.plain}</span><ChevronRight size={16} /></button>)}
     </section>}
 
     <div className="stats-strip today-stats">

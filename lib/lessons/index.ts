@@ -15,11 +15,13 @@ import { m12 } from './m12';
 import { m13 } from './m13';
 import { m14 } from './m14';
 import { m15 } from './m15';
+import { m16 } from './m16';
+import { m17 } from './m17';
 
 export type { Lesson, LessonSection, Question } from './types';
 
 // Every module in the plain-language format with quizzes.
-export const lessons: Record<string, Lesson> = { m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15 };
+export const lessons: Record<string, Lesson> = { m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, m16, m17 };
 
 export const allQuestions: Record<string, Question> = Object.fromEntries(
   Object.values(lessons).flatMap(l => [...l.sections.flatMap(s => s.check), ...l.quiz]).map(q => [q.id, q]),

@@ -1,5 +1,6 @@
 import curriculum from './curriculum.json';
 import { allQuestions, lessons } from './lessons';
+import { validApplications } from './applications';
 export type Stored = Record<string, string | number | boolean>;
 const tasks = new Set(curriculum.modules.flatMap(m => m.tasks.map((_, i) => `${m.id}-${i}`)));
 const modules = new Set(curriculum.modules.map(m => m.id));
@@ -9,12 +10,14 @@ export function validEntry(key: string, value: unknown): boolean {
   if (['career:apps','career:outreach','career:screens','career:mocks'].includes(key)) return Number.isInteger(value) && Number(value) >= 0 && Number(value) <= 100000;
   if (key.startsWith('srs:') && allQuestions[key.slice(4)]) return typeof value === 'string' && /^[0-4]\|\d{4}-\d{2}-\d{2}$/.test(value);
   if (key.startsWith('read:') && modules.has(key.slice(5))) return typeof value === 'boolean';
+  if (key.startsWith('passed:') && allQuestions[key.slice(7)]) return value === true;
   if (key.startsWith('quiz:') && lessons[key.slice(5)]) return Number.isInteger(value) && Number(value) >= 0 && Number(value) <= 100;
   if (key.startsWith('evidence:') && modules.has(key.slice(9))) return typeof value === 'string' && value.length <= 2000;
-  if (['career:feedback','career:interviewLog','career:portfolio1','career:portfolio2','career:portfolio3'].includes(key)) return typeof value === 'string' && value.length <= 20000;
+  if (['career:feedback','career:interviewLog','career:portfolio1','career:portfolio2','career:portfolio3','career:portfolio4'].includes(key)) return typeof value === 'string' && value.length <= 20000;
+  if (key === 'career:applications') return validApplications(value);
   if (key === 'pace') return [12,18,24].includes(Number(value)) && typeof value === 'number';
   if (key === 'startDate') return typeof value === 'string' && (value === '' || /^\d{4}-\d{2}-\d{2}$/.test(value));
-  if (key === 'resume') return typeof value === 'string' && /^learn\/m(?:[0-9]|1[0-5])(?:\/(?:read|watch|practice|gate|learn|quiz|build|prove|videos|notes)(?:\/\d+)?)?$/.test(value);
+  if (key === 'resume') return typeof value === 'string' && modules.has(value.split('/')[1]) && /^learn\/m\d{1,2}(?:\/(?:read|watch|practice|gate|learn|quiz|build|prove|videos|notes)(?:\/\d+)?)?$/.test(value);
   return false;
 }
 export function normalizeImport(input: unknown): Stored {

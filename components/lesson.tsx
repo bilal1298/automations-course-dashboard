@@ -2,8 +2,7 @@
 import { useState } from 'react';
 import { CheckCircle2, ListChecks, MessageSquare } from 'lucide-react';
 import { lessons, PASS_MARK, type LessonSection, type Question } from '@/lib/lessons';
-import { parse } from '@/lib/srs';
-import { sectionDone } from '@/lib/progress';
+import { questionPassed, sectionDone } from '@/lib/progress';
 import RichText from './rich-text';
 import QuizRunner, { prepare, type Prepared } from './quiz';
 import { useApp } from './app-context';
@@ -16,11 +15,12 @@ function SectionCheck({ questions }: { questions: Question[] }) {
   const start = () => setRunning(prepare(questions));
   if (running) return <div className="section-check"><QuizRunner key={running.map(q => q.display.join()).join()} questions={running} onAnswer={answer} onRestart={start} onClose={() => setRunning(null)} /></div>;
   const done = sectionDone(values, questions);
-  const right = questions.filter(q => (parse(values[`srs:${q.id}`])?.box ?? 0) > 0).length;
+  const right = questions.filter(q => questionPassed(values, q)).length;
+  const tried = questions.some(q => values[`srs:${q.id}`] !== undefined);
   return <div className={`section-check ${done ? 'done' : ''}`}>
-    <div><b>{done ? <><CheckCircle2 size={17} /> Checked: {right} of {questions.length} right</> : `Check yourself: ${questions.length} quick questions`}</b>
-    <p className="muted">{done ? 'Retake any time. Missed questions come back in Today.' : 'Answer these to finish this lesson.'}</p></div>
-    <button className={done ? 'secondary' : 'primary'} disabled={!loaded} onClick={start}>{done ? 'Retake' : 'Start'}</button>
+    <div><b>{done ? <><CheckCircle2 size={17} /> Lesson complete</> : tried ? `${right} of ${questions.length} right so far` : `Check yourself: ${questions.length} quick questions`}</b>
+    <p className="muted">{done ? 'Retake any time. Questions you miss come back in Today.' : tried ? 'Get each one right once to finish this lesson. Retake as often as you like.' : 'Get each one right to finish this lesson.'}</p></div>
+    <button className={done ? 'secondary' : 'primary'} disabled={!loaded} onClick={start}>{done || tried ? 'Retake' : 'Start'}</button>
   </div>;
 }
 
@@ -41,7 +41,7 @@ export function QuizPanel({ mid, onPassed }: { mid: string; onPassed: React.Reac
   const best = typeof values[`quiz:${mid}`] === 'number' ? Number(values[`quiz:${mid}`]) : null;
   const start = () => setRunning(prepare(lesson.quiz, true));
   const finish = (score: number) => { if (best === null || score > best) change(`quiz:${mid}`, score); };
-  if (running) return <QuizRunner key={running.map(q => q.id).join()} questions={running} passMark={PASS_MARK} onAnswer={answer} onFinish={finish} onRestart={start} onClose={() => setRunning(null)} />;
+  if (running) return <QuizRunner key={running.map(q => q.id).join()} questions={running} passMark={PASS_MARK} previousBest={best} onAnswer={answer} onFinish={finish} onRestart={start} onClose={() => setRunning(null)} />;
   return <div className="quiz-intro">
     <span className="mastery-icon"><ListChecks size={30} /></span>
     <h2>Do you actually know this?</h2>

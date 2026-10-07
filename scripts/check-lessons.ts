@@ -37,6 +37,12 @@ for (const [mid, lesson] of Object.entries(lessons)) {
       q.options.forEach(o => text.push(o.text, o.why));
     } else if (q.items.length < 3) problems.push(`${q.id}: order question needs 3+ items`);
   }
+  // Guessability: the correct option must not usually be the longest one.
+  const choices = questions.map(x => x.q).filter(q => q.kind === 'choice');
+  const longestCorrect = choices.filter(q => q.kind === 'choice' && q.options[q.answer].text.length >= Math.max(...q.options.map(o => o.text.length))).length;
+  const shortestCorrect = choices.filter(q => q.kind === 'choice' && q.options[q.answer].text.length <= Math.min(...q.options.map(o => o.text.length))).length;
+  if (choices.length && shortestCorrect / choices.length > 0.4) problems.push(`${mid}: correct answer is the shortest option in ${shortestCorrect}/${choices.length} questions (max 40%)`);
+  if (choices.length && longestCorrect / choices.length > 0.4) problems.push(`${mid}: correct answer is the longest option in ${longestCorrect}/${choices.length} questions (max 40%) — make wrong options plausible and similar in length`);
   for (const t of text) {
     for (const [, term] of t.matchAll(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g)) if (!allTerms[term.toLowerCase()]) problems.push(`${mid}: no glossary entry for [[${term}]]`);
     if ((t.match(/\*\*/g) ?? []).length % 2) problems.push(`${mid}: unbalanced ** in: ${t.slice(0, 60)}…`);

@@ -44,7 +44,7 @@ function OrderView({ q, onAnswer }: { q: Prepared & { kind: 'order' }; onAnswer:
   return <div className="order">
     <ol className="order-chosen">
       {sequence.map((item, position) => <li key={item} className={checked ? (item === position ? 'correct' : 'wrong') : ''}>
-        <button disabled={checked} onClick={() => setSequence(sequence.filter(x => x !== item))}><Inline text={q.items[item]} /></button>
+        <span>{position + 1}.</span><button disabled={checked} onClick={() => setSequence(sequence.filter(x => x !== item))}><Inline text={q.items[item]} /></button>
       </li>)}
     </ol>
     {remaining.length > 0 && <><p className="muted order-hint">{sequence.length ? 'Tap the next step:' : 'Tap the steps in order. Tap a chosen step to undo.'}</p>
@@ -65,13 +65,14 @@ export function QuestionCard({ q, onAnswer }: { q: Prepared; onAnswer: (correct:
   </div>;
 }
 
-export default function QuizRunner({ questions, onAnswer, onFinish, onRestart, onClose, passMark }: {
+export default function QuizRunner({ questions, onAnswer, onFinish, onRestart, onClose, passMark, previousBest }: {
   questions: Prepared[];
   onAnswer: (q: Question, correct: boolean) => void;
   onFinish?: (score: number) => void;
   onRestart?: () => void;
   onClose: () => void;
   passMark?: number;
+  previousBest?: number | null;
 }) {
   const [index, setIndex] = useState(0);
   const [results, setResults] = useState<Record<string, boolean>>({});
@@ -87,7 +88,7 @@ export default function QuizRunner({ questions, onAnswer, onFinish, onRestart, o
     return <div className="quiz-summary">
       <span className={`summary-score ${passed ? 'pass' : ''}`}>{passed && passMark !== undefined && <Trophy size={20} />}{score}%</span>
       <h3>{correct} of {questions.length} correct</h3>
-      <p className="muted">{passMark === undefined ? 'Missed questions come back in your Today review.' : passed ? 'You passed. Missed questions still come back in your Today review.' : `You need ${passMark}% to pass. Re-read the sections for the questions you missed, then retake.`}</p>
+      <p className="muted">{passMark === undefined ? 'Missed questions come back in your Today review.' : passed ? 'You passed. Missed questions still come back in your Today review.' : previousBest != null && previousBest >= passMark ? `Below your best of ${previousBest}%, which still counts. Missed questions come back in Today.` : `You need ${passMark}% to pass. Re-read the lessons behind the questions you missed, then retake.`}</p>
       {missed.length > 0 && <div className="missed"><b>To revisit</b><ul>{missed.map(x => <li key={x.id}><Inline text={x.prompt} /></li>)}</ul></div>}
       <div className="button-row">{onRestart && <button className="secondary" onClick={onRestart}><RotateCcw size={16} />Try again</button>}<button className="primary" onClick={onClose}>Done</button></div>
     </div>;

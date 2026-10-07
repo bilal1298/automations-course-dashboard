@@ -24,7 +24,7 @@ const titles: Record<string, string> = { today: 'Today', home: 'Course', learn: 
 
 // Old bookmarks used read/watch/practice/gate; map them onto the four-step names.
 const legacy: Record<string, string> = { read: 'learn', watch: 'videos', practice: 'build', gate: 'prove' };
-const routePattern = /^(today|home|interview|career|settings|learn\/m(?:[0-9]|1[0-5])(\/(learn|quiz|build|prove|videos|notes)(\/\d+)?)?)$/;
+const routePattern = /^(today|home|interview|career|settings|learn\/m\d{1,2}(\/(learn|quiz|build|prove|videos|notes)(\/\d+)?)?)$/;
 function normalise(path: string, phone: boolean) {
   const fixed = path.replace(/^(learn\/m\d+\/)(read|watch|practice|gate)\b/, (_, a, b) => a + legacy[b]);
   if (routePattern.test(fixed)) return fixed;
@@ -32,6 +32,9 @@ function normalise(path: string, phone: boolean) {
 }
 
 const subscribeHash = (onChange: () => void) => { window.addEventListener('hashchange', onChange); return () => window.removeEventListener('hashchange', onChange); };
+
+// Only the API's own sign-in message is worth showing as-is; anything else gets a plain explanation.
+const unauthMessage = (m: string) => m.startsWith('Sign in');
 
 // These publishers send X-Frame-Options/frame-ancestors headers, so the embedded reading room would be blank.
 const noFrame = /(^|\.)(github\.com|docker\.com|mozilla\.org|postgresql\.org|supabase\.com|anthropic\.com|openai\.com|linkedin\.com)$/;
@@ -44,6 +47,8 @@ export default function Academy({ email }: { email: string }) {
   const valuesRef = useRef<Stored>({});
   const pending = useRef<Stored>({});
   const busy = useRef(false);
+  const retryIn = useRef(2000);
+  const nextTry = useRef(0);
   const [loaded, setLoaded] = useState(false);
   const [status, setStatus] = useState('Loading progress');
   const [error, setError] = useState('');
@@ -59,7 +64,10 @@ export default function Academy({ email }: { email: string }) {
     valuesRef.current = { ...valuesRef.current, [key]: value };
     setValues(valuesRef.current); setStatus('Unsaved changes');
   }, [loaded]);
-  const answer = useCallback((q: Question, correct: boolean) => change(`srs:${q.id}`, schedule(valuesRef.current[`srs:${q.id}`], correct)), [change]);
+  const answer = useCallback((q: Question, correct: boolean) => {
+    change(`srs:${q.id}`, schedule(valuesRef.current[`srs:${q.id}`], correct));
+    if (correct) change(`passed:${q.id}`, true);
+  }, [change]);
   const openDoc = useCallback((doc: string[]) => { if (noFrame.test(new URL(doc[1]).hostname)) window.open(doc[1], '_blank', 'noopener'); else setResource(doc); }, []);
 
   const load = useCallback(async () => {
@@ -68,26 +76,37 @@ export default function Academy({ email }: { email: string }) {
       const data = await res.json() as { error?: string; values: Stored };
       if (!res.ok) { setUnauth(res.status === 401); throw new Error(data.error); }
       valuesRef.current = data.values; setValues(data.values); setLoaded(true); setUnauth(false); setError(''); setStatus('All changes saved');
-    } catch (e) { setError(e instanceof Error ? e.message : 'Could not load progress.'); setStatus('Progress unavailable'); }
+    } catch (e) { setError(e instanceof Error && unauthMessage(e.message) ? e.message : 'Couldn’t load your progress. Check your connection and retry.'); setStatus('Progress unavailable'); }
   }, []);
 
   // Changes are queued and saved once a second, in order. A failed save keeps them on the page.
   const flush = useCallback(async () => {
     if (busy.current || !Object.keys(pending.current).length) return;
-    busy.current = true; const snapshot = { ...pending.current }; setStatus('Saving');
+    busy.current = true; const snapshot = { ...pending.current }; const quiet = Object.keys(snapshot).every(k => k === 'resume');
+    if (!quiet) setStatus('Saving');
     try {
       const res = await fetch('/api/progress', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ values: snapshot }) });
       const data = await res.json() as { error?: string };
       if (!res.ok) throw new Error(data.error);
       for (const [k, v] of Object.entries(snapshot)) if (pending.current[k] === v) delete pending.current[k];
-      setError(''); setStatus(Object.keys(pending.current).length ? 'Unsaved changes' : 'All changes saved');
-    } catch (e) { setError(e instanceof Error ? e.message : 'Could not save.'); setStatus('Changes not saved'); }
+      setError(''); if (!quiet) setStatus(Object.keys(pending.current).length ? 'Unsaved changes' : 'All changes saved');
+      retryIn.current = 2000;
+    } catch {
+      // Keep the changes and try again with growing gaps (2s, 4s … 60s); reconnecting retries at once.
+      setError('Not saved yet: you seem to be offline. Your changes are kept on this page and will save automatically.'); setStatus('Changes not saved');
+      nextTry.current = Date.now() + retryIn.current; retryIn.current = Math.min(retryIn.current * 2, 60000);
+    }
     busy.current = false;
   }, []);
 
   // eslint-disable-next-line react-hooks/set-state-in-effect -- load() only sets state after the fetch resolves
   useEffect(() => { void load(); }, [load]);
-  useEffect(() => { const id = setInterval(() => { if (!error) void flush(); }, 1000); return () => clearInterval(id); }, [flush, error]);
+  useEffect(() => {
+    const id = setInterval(() => { if (Date.now() >= nextTry.current) void flush(); }, 1000);
+    const online = () => { nextTry.current = 0; void flush(); };
+    window.addEventListener('online', online);
+    return () => { clearInterval(id); window.removeEventListener('online', online); };
+  }, [flush]);
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => { if (Object.keys(pending.current).length) { e.preventDefault(); e.returnValue = ''; } };
     window.addEventListener('beforeunload', handler);
@@ -95,8 +114,14 @@ export default function Academy({ email }: { email: string }) {
   }, []);
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
-    if (route.startsWith('learn/') && loaded) change('resume', route);
-  }, [route, loaded, change]);
+    // Old or invalid links show the right page; make the address bar match it too.
+    // Read the real hash here (not `route`, which is the server's guess during hydration) so deep links survive a reload.
+    const actual = decodeURIComponent(location.hash.slice(1));
+    const canonical = normalise(actual, window.innerWidth < 768);
+    if (actual && canonical !== actual) history.replaceState(null, '', '#' + canonical);
+    // Remember the module you're in (for Continue) without flashing the save status.
+    if (loaded && route.startsWith('learn/') && valuesRef.current.resume !== route) { pending.current.resume = route; valuesRef.current = { ...valuesRef.current, resume: route }; }
+  }, [route, loaded]);
 
   const [view, mid, step, index] = route.split('/');
   const current = modules.find(m => m.id === mid);
@@ -125,14 +150,16 @@ export default function Academy({ email }: { email: string }) {
         <div className="save-status" role="status">{status === 'Saving' || !loaded && !error ? <LoaderCircle className="spin" size={15} /> : loaded && !error ? <CloudCheck size={16} /> : <Circle size={14} />}<span>{status}</span></div>
       </header>
       {error && <div className="error-banner" role="alert"><span>{error}</span>{unauth ? <a href="/login">Sign in</a> : <button onClick={() => { if (loaded) void flush(); else { setStatus('Loading progress'); void load(); } }}><RotateCw size={15} />Retry</button>}</div>}
-      {notice && <div className="notice" role="status">{notice}<button aria-label="Dismiss" onClick={() => setNotice('')}><X size={16} /></button></div>}
+      {notice && <div className="notice" role="status">{notice.startsWith('Progress imported') && status === 'All changes saved' ? 'Progress imported and saved.' : notice}<button aria-label="Dismiss" onClick={() => setNotice('')}><X size={16} /></button></div>}
 
+      {!loaded && !error ? <main className="content narrow loading-page" aria-busy="true"><div className="skeleton tall" /><div className="skeleton" /><div className="skeleton" /></main> : <>
       {view === 'today' && <Today values={values} answer={answer} go={go} loaded={loaded} />}
       {view === 'home' && <Course />}
       {view === 'learn' && current && (step ? <StepPage key={route} m={current} step={step as Step} index={index === undefined ? -1 : Number(index)} /> : <ModuleOverview m={current} />)}
       {view === 'interview' && <InterviewPage />}
       {view === 'career' && <CareerPage />}
       {view === 'settings' && <SettingsPage email={email} exportProgress={exportProgress} onImport={setImportData} />}
+      </>}
 
       <nav className="mobile-tabbar" aria-label="Main">
         {[...nav, { id: 'settings', label: 'Settings', icon: Settings2 }].map(({ id, label, icon: Icon }) => <button key={id} className={active(id) ? 'active' : ''} aria-current={active(id) ? 'page' : undefined} onClick={() => go(id)}><Icon size={21} /><span>{label}</span></button>)}
