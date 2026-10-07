@@ -6,7 +6,8 @@ import { allQuestions, lessons, type Question } from '@/lib/lessons';
 import type { Stored } from '@/lib/state';
 import { isDue, isMastered, parse } from '@/lib/srs';
 import QuizRunner, { prepare, type Prepared } from './quiz';
-import { sectionDone, type AnswerFn } from './lesson';
+import type { AnswerFn } from './lesson';
+import { sectionDone } from '@/lib/progress';
 
 const clean = (t: string) => t.replace(/^\d+\. /, '');
 
@@ -45,7 +46,7 @@ export default function Today({ values, answer, go, loaded }: { values: Stored; 
     {nextSection && <section className="today-card">
       <span className="small-icon"><BookOpen size={20} /></span>
       <div><h2>Read next</h2><p><b>{nextSection.s.title}</b></p><p className="muted">{clean(curriculum.modules.find(m => m.id === nextSection.mid)!.title)} · section {nextSection.i + 1} · {nextSection.s.minutes} min + {nextSection.s.check.length} questions</p></div>
-      <button className="primary" onClick={() => go(`learn/${nextSection.mid}/read/${nextSection.i}`)}>Read</button>
+      <button className="primary" onClick={() => go(`learn/${nextSection.mid}/learn/${nextSection.i}`)}>Read</button>
     </section>}
 
     {practicePool.length > 0 && <section className="today-card">
@@ -56,7 +57,7 @@ export default function Today({ values, answer, go, loaded }: { values: Stored; 
 
     {phoneTasks.length > 0 && <section className="today-card column">
       <div className="row"><span className="small-icon"><Smartphone size={20} /></span><div><h2>Phone-friendly exercises</h2><p className="muted">Things you can finish without a computer.</p></div></div>
-      {phoneTasks.map(x => <button key={`${x.mid}-${x.i}`} className="resource-row" onClick={() => go(`learn/${x.mid}/practice/${x.i}`)}><span><Smartphone size={16} />{x.t.plain}</span></button>)}
+      {phoneTasks.map(x => <button key={`${x.mid}-${x.i}`} className="resource-row" onClick={() => go(`learn/${x.mid}/build/${x.i}`)}><span><Smartphone size={16} />{x.t.plain}</span></button>)}
     </section>}
 
     <div className="stats-strip today-stats">

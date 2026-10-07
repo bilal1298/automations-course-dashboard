@@ -1,7 +1,7 @@
 import type { Lesson, Question } from './types';
 import { m1 } from './m1';
 
-export type { Lesson, Question } from './types';
+export type { Lesson, LessonSection, Question } from './types';
 
 // Modules rewritten in the plain-language format with quizzes. Others fall back to the original handbook.
 export const lessons: Record<string, Lesson> = { m1 };
