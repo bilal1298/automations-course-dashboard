@@ -92,7 +92,9 @@ function LearnStep({ m, index }: { m: Module; index: number }) {
   const afterLearn: [string, string] = p.quiz ? ['Next: Quiz', `learn/${m.id}/quiz`] : ['Next: Build', `learn/${m.id}/build`];
   if (p.lesson) {
     const sections = p.lesson.sections;
-    const i = Math.min(index, sections.length - 1);
+    // No lesson number (e.g. tapping the Learn step) opens your next unfinished lesson.
+    const next = sections.findIndex(x => !sectionDone(values, x.check));
+    const i = Math.min(index >= 0 ? index : Math.max(next, 0), sections.length - 1);
     const s = sections[i];
     const last = i === sections.length - 1;
     return <>
