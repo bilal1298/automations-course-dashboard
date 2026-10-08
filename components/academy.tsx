@@ -7,7 +7,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import type { Question } from '@/lib/lessons';
 import { modules } from '@/lib/progress';
 import { schedule } from '@/lib/srs';
-import type { Stored } from '@/lib/state';
+import { validEntry, type Stored } from '@/lib/state';
 import { AppContext, type App } from './app-context';
 import Course from './course';
 import { ModuleOverview, StepPage, type Step } from './module';
@@ -39,7 +39,7 @@ const unauthMessage = (m: string) => m.startsWith('Sign in');
 // These publishers send X-Frame-Options/frame-ancestors headers, so the embedded reading room would be blank.
 const noFrame = /(^|\.)(github\.com|docker\.com|mozilla\.org|postgresql\.org|supabase\.com|anthropic\.com|openai\.com|linkedin\.com)$/;
 
-export default function Academy({ email }: { email: string }) {
+export default function Academy({ email, aiEnabled = false }: { email: string; aiEnabled?: boolean }) {
   // The URL hash is the router: bookmarkable, and the back button works.
   const hash = useSyncExternalStore(subscribeHash, () => location.hash, () => '#home');
   const route = normalise(decodeURIComponent(hash.slice(1)), typeof window !== 'undefined' && window.innerWidth < 768);
@@ -57,13 +57,20 @@ export default function Academy({ email }: { email: string }) {
   const [resource, setResource] = useState<string[] | null>(null);
   const [importData, setImportData] = useState<Stored | null>(null);
 
+  // Unsaved changes are also kept on this device, so closing the app while offline doesn't lose them.
+  const storeKey = `academy-pending:${email}`;
+  const persistPending = useCallback(() => {
+    try { if (Object.keys(pending.current).length) localStorage.setItem(storeKey, JSON.stringify(pending.current)); else localStorage.removeItem(storeKey); } catch {}
+  }, [storeKey]);
+
   const go = useCallback((path: string) => { window.location.hash = path; }, []);
   const change = useCallback((key: string, value: Stored[string]) => {
     if (!loaded) return;
     pending.current[key] = value;
+    persistPending();
     valuesRef.current = { ...valuesRef.current, [key]: value };
     setValues(valuesRef.current); setStatus('Unsaved changes');
-  }, [loaded]);
+  }, [loaded, persistPending]);
   const answer = useCallback((q: Question, correct: boolean) => {
     change(`srs:${q.id}`, schedule(valuesRef.current[`srs:${q.id}`], correct));
     if (correct) change(`passed:${q.id}`, true);
@@ -75,9 +82,15 @@ export default function Academy({ email }: { email: string }) {
       const res = await fetch('/api/progress', { cache: 'no-store' });
       const data = await res.json() as { error?: string; values: Stored };
       if (!res.ok) { setUnauth(res.status === 401); throw new Error(data.error); }
-      valuesRef.current = data.values; setValues(data.values); setLoaded(true); setUnauth(false); setError(''); setStatus('All changes saved');
+      // Re-apply anything saved on this device but not yet synced (e.g. answered offline, then the app was closed).
+      let offline: Stored = {};
+      try { offline = JSON.parse(localStorage.getItem(storeKey) || '{}'); } catch {}
+      offline = Object.fromEntries(Object.entries(offline).filter(([k, v]) => validEntry(k, v)));
+      Object.assign(pending.current, offline);
+      valuesRef.current = { ...data.values, ...offline }; setValues(valuesRef.current); setLoaded(true); setUnauth(false); setError('');
+      setStatus(Object.keys(offline).length ? 'Unsaved changes' : 'All changes saved');
     } catch (e) { setError(e instanceof Error && unauthMessage(e.message) ? e.message : 'Couldn’t load your progress. Check your connection and retry.'); setStatus('Progress unavailable'); }
-  }, []);
+  }, [storeKey]);
 
   // Changes are queued and saved once a second, in order. A failed save keeps them on the page.
   const flush = useCallback(async () => {
@@ -89,15 +102,16 @@ export default function Academy({ email }: { email: string }) {
       const data = await res.json() as { error?: string };
       if (!res.ok) throw new Error(data.error);
       for (const [k, v] of Object.entries(snapshot)) if (pending.current[k] === v) delete pending.current[k];
+      persistPending();
       setError(''); if (!quiet) setStatus(Object.keys(pending.current).length ? 'Unsaved changes' : 'All changes saved');
       retryIn.current = 2000;
     } catch {
       // Keep the changes and try again with growing gaps (2s, 4s … 60s); reconnecting retries at once.
-      setError('Not saved yet: you seem to be offline. Your changes are kept on this page and will save automatically.'); setStatus('Changes not saved');
+      setError('Offline: your changes are kept on this device and will sync automatically when you’re back online.'); setStatus('Changes not saved');
       nextTry.current = Date.now() + retryIn.current; retryIn.current = Math.min(retryIn.current * 2, 60000);
     }
     busy.current = false;
-  }, []);
+  }, [persistPending]);
 
   // eslint-disable-next-line react-hooks/set-state-in-effect -- load() only sets state after the fetch resolves
   useEffect(() => { void load(); }, [load]);
@@ -130,7 +144,7 @@ export default function Academy({ email }: { email: string }) {
     const url = URL.createObjectURL(blob); const a = document.createElement('a');
     a.href = url; a.download = 'automation-academy-progress.json'; a.click(); setTimeout(() => URL.revokeObjectURL(url), 500);
   };
-  const app: App = { values, loaded, change, go, answer, openDoc };
+  const app: App = { values, loaded, change, go, answer, openDoc, aiEnabled };
   const active = (id: string) => view === id || id === 'home' && view === 'learn';
 
   return <AppContext.Provider value={app}><SidebarProvider style={{ '--sidebar-width': '232px' } as React.CSSProperties}>

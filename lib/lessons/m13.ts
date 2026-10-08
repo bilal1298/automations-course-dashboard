@@ -142,9 +142,9 @@ state saved to Postgres after every node`,
       ],
       example: {
         caption: 'One tool exposed over MCP, with permissions in code',
-        code: `from mcp.server.fastmcp import FastMCP
+        code: `from mcp.server.mcpserver import MCPServer   # SDK v2 (v1: FastMCP)
 
-mcp = FastMCP("brightline-ops")
+mcp = MCPServer("brightline-ops")
 
 ALLOWED_ROLES = {                  # per-tool permissions
     "find_jobs":      {"viewer", "ops", "admin"},
@@ -200,7 +200,7 @@ if __name__ == "__main__":
       title: 'Checkpoints, approval and resuming without duplicates',
       minutes: 7,
       body: [
-        "**Saving progress.** A [[checkpointer]] saves the graph state after every step. Use the Postgres one (`PostgresSaver`, from the `langgraph-checkpoint-postgres` package), so state survives restarts; check the current docs for its exact setup call. Each run has a [[thread id]]. Call the graph again with the same thread id and it carries on from the last saved step.",
+        "**Saving progress.** A [[checkpointer]] saves the graph state after every step. Use the Postgres one (`PostgresSaver`, from the `langgraph-checkpoint-postgres` package), so state survives restarts: open it with `PostgresSaver.from_conn_string(...)` and call `setup()` once to create its tables. Each run has a [[thread id]]. Call the graph again with the same thread id and it carries on from the last saved step.",
         "**Approval.** In the approval node, [[interrupt]] pauses the run and saves its state. Your UI shows the **exact** tool and arguments: “reschedule job J-118 from Thu 14:00 to Fri 09:00”. When the human decides, you resume the same thread with `Command(resume=...)`.",
         "**Approval binds to the exact action.** Store a hash (fingerprint) of the tool name plus arguments with the approval. Execute only if they still match. If the model changes the date, it needs approving again. Route rejected approvals to `respond`, never to `execute_write`.",
         "**A trap to know.** When a paused run resumes, LangGraph re-runs the paused node **from its beginning**. So never put a side effect before `interrupt()` in the same node. Keep the write in its own node, after approval.",

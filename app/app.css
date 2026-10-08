@@ -331,6 +331,14 @@ html { scroll-padding-top: 70px; }
 .related-videos > div { display: flex; gap: 8px; flex-wrap: wrap; }
 .related-videos .secondary { font-size: 13.5px; min-height: 40px; text-align: left; }
 
+/* Starter kit */
+.starter-kit { background: #fff; border: 1px dashed var(--blue-line); border-radius: var(--radius-card); padding: 14px 16px; margin: 0 0 14px; }
+.starter-kit b { display: flex; align-items: center; gap: 7px; font-size: 14.5px; color: var(--blue); }
+.starter-kit ul { list-style: none; padding: 0; margin: 8px 0 6px; }
+.starter-kit li { margin-bottom: 6px; }
+.starter-kit a { display: inline-flex; align-items: center; gap: 5px; color: var(--ink); font-size: 14.5px; text-decoration: underline; text-decoration-color: var(--blue-line); text-underline-offset: 3px; }
+.starter-kit small { font-size: 13px; color: var(--muted-ink); }
+
 /* Prove */
 .gate-card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius-card); padding: 20px; margin: 14px 0 18px; }
 .gate-card p { font-size: 18px; line-height: 1.6; font-weight: 600; margin: 4px 0 8px; }
@@ -409,7 +417,8 @@ html { scroll-padding-top: 70px; }
 .quiz-summary .button-row { justify-content: center; margin-top: 16px; }
 .missed { text-align: left; margin-top: 16px; padding: 14px 16px; border-radius: 12px; background: #f3f6fa; font-size: 14.5px; }
 .missed ul { list-style: disc; padding-left: 20px; margin-top: 6px; }
-.missed li { margin-bottom: 5px; }
+.missed li { margin-bottom: 8px; }
+.missed .revisit { display: flex; min-height: 0; margin-top: 2px; font-size: 13px; }
 
 /* ---------- Today ---------- */
 .today-card { display: flex; align-items: center; gap: 16px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius-card); padding: 18px 20px; margin-bottom: 12px; }
@@ -551,7 +560,17 @@ html { scroll-padding-top: 70px; }
 .app-body-fields .muted a { color: var(--blue); }
 .text-button.danger { color: var(--red); align-self: flex-start; }
 
+/* ---------- AI feedback ---------- */
+.ai-feedback { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+.ai-feedback .field-label { margin: 0; }
+.ai-feedback > button { align-self: flex-start; }
+.ai-result { white-space: pre-wrap; overflow-wrap: anywhere; background: #f8faff; border: 1px solid #dbe5fd; border-radius: 12px; padding: 14px 16px; font-size: 15px; line-height: 1.65; color: var(--body); }
+
 /* ---------- Mock interview ---------- */
+.recorder { display: flex; flex-direction: column; gap: 10px; margin: 6px 0 14px; }
+.recorder audio { width: 100%; }
+.recorder .recording { color: var(--red); border-color: #f0b5b0; }
+.recorder-note { margin: 6px 0 12px; }
 .segmented { display: grid; grid-template-columns: 1fr 1fr; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 4px; margin-bottom: 16px; }
 .segmented button { border: 0; background: none; border-radius: 9px; padding: 10px; font-size: 14.5px; font-weight: 600; color: var(--muted-ink); }
 .segmented button.on { background: var(--blue-soft); color: var(--blue); }

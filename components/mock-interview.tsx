@@ -4,6 +4,8 @@ import { Timer } from 'lucide-react';
 import { interviewQuestions, type InterviewQuestion } from '@/lib/interview-bank';
 import { today } from '@/lib/srs';
 import { useApp } from './app-context';
+import Recorder from './recorder';
+import AiFeedback from './ai-feedback';
 
 const ANSWER_SECONDS = 180;
 const rubric = ['Missed it', 'Vague', 'OK', 'Good', 'Strong'];
@@ -60,8 +62,10 @@ export default function MockInterview() {
   return <div className="question-card">
     <div className="mock-head"><span className="chip">{q[0]}</span><span>Question {index + 1} of 5</span><span className={`mock-timer ${left === 0 ? 'over' : ''}`}><Timer size={15} />{Math.floor(left / 60)}:{String(left % 60).padStart(2, '0')}</span></div>
     <h2>{q[1]}</h2>
+    <Recorder key={index} />
     {!revealed ? <button className="primary" onClick={() => setRevealed(true)}>I’ve answered: show the guide</button> : <>
       <div className="answer"><h3>A strong answer covers</h3><p>{q[2]}</p></div>
+      <AiFeedback key={index} kind="interview" question={q[1]} guide={q[2]} label="Want feedback? Type or dictate your answer" placeholder="Tip: use your keyboard’s microphone to dictate what you said." />
       <p className="muted mock-rate">How did you do?</p>
       <div className="score-row">{rubric.map((label, i) => <button key={label} className="secondary" onClick={() => score(i + 1)}><b>{i + 1}</b><small>{label}</small></button>)}</div>
     </>}

@@ -380,8 +380,95 @@
      "https://n8n.io/workflows/"
     ]
    ],
-   "videos": [],
-   "videoDetails": [],
+   "videos": [
+    [
+     "Run a requirements-gathering interview",
+     "iIAbSOvf96E",
+     0,
+     0
+    ],
+    [
+     "What to automate first (and what not to)",
+     "rA6Ml2qalUw",
+     0,
+     0
+    ],
+    [
+     "How to draw a process map",
+     "SiaZ9Gzh4Ww",
+     0,
+     0
+    ],
+    [
+     "Payback period in plain numbers",
+     "Zi6u75FoejU",
+     0,
+     0
+    ],
+    [
+     "What goes in a statement of work",
+     "1picY6dlLOc",
+     0,
+     0
+    ]
+   ],
+   "videoDetails": [
+    {
+     "creator": "Stefano - The Agile Business Analyst",
+     "focus": "Watch how to start from the problem, ask open questions, and confirm what the person actually needs.",
+     "taskIndices": [
+      0,
+      1,
+      6
+     ],
+     "sourceUrl": "https://www.youtube.com/watch?v=iIAbSOvf96E",
+     "selection": "focused",
+     "checkedOn": "2026-10-08"
+    },
+    {
+     "creator": "Automation Helpers",
+     "focus": "Notice which everyday business processes are good first automations and which are better left manual for now.",
+     "taskIndices": [
+      0,
+      6
+     ],
+     "sourceUrl": "https://www.youtube.com/watch?v=rA6Ml2qalUw",
+     "selection": "focused",
+     "checkedOn": "2026-10-08"
+    },
+    {
+     "creator": "Bridging the Gap - Resources for Business Analysts",
+     "focus": "Learn to show each step, who does it and where decisions happen, so the today-and-tomorrow maps are easy to compare.",
+     "taskIndices": [
+      2,
+      7
+     ],
+     "sourceUrl": "https://www.youtube.com/watch?v=SiaZ9Gzh4Ww",
+     "selection": "focused",
+     "checkedOn": "2026-10-08"
+    },
+    {
+     "creator": "Corporate Finance Institute",
+     "focus": "Practise working out how many months it takes for the time saved to pay back the build and running costs.",
+     "taskIndices": [
+      3,
+      7
+     ],
+     "sourceUrl": "https://www.youtube.com/watch?v=Zi6u75FoejU",
+     "selection": "focused",
+     "checkedOn": "2026-10-08"
+    },
+    {
+     "creator": "Online PM Courses - Mike Clayton",
+     "focus": "See how a scope document makes deliverables, exclusions and acceptance clear so nobody is surprised later.",
+     "taskIndices": [
+      4
+     ],
+     "sourceUrl": "https://www.youtube.com/watch?v=1picY6dlLOc",
+     "selection": "focused",
+     "checkedOn": "2026-10-08"
+    }
+   ],
    "gate": "Turn one real process into a costed, scoped proposal and pitch it.",
    "gateChecks": [
     "Discovery notes from a real conversation",
@@ -499,6 +586,18 @@
      "8sTuCPh3s0s",
      0,
      0
+    ],
+    [
+     "Build an AI Agent in n8n",
+     "GuaKeDS6UKU",
+     736,
+     1126
+    ],
+    [
+     "Power Automate: build your first cloud flow",
+     "BykkAIwRX-E",
+     0,
+     0
     ]
    ],
    "gate": "Make one real n8n workflow safe to hand to a client.",
@@ -548,6 +647,27 @@
      "sourceUrl": "https://www.youtube.com/watch?v=8sTuCPh3s0s",
      "selection": "focused",
      "checkedOn": "2026-10-06"
+    },
+    {
+     "creator": "n8n",
+     "focus": "See how the AI Agent node is wired to a chat model, tools and memory, and how to test it.",
+     "taskIndices": [
+      0,
+      13
+     ],
+     "sourceUrl": "https://www.youtube.com/watch?v=GuaKeDS6UKU",
+     "selection": "chapter",
+     "checkedOn": "2026-10-08"
+    },
+    {
+     "creator": "Microsoft Power Platform",
+     "focus": "Notice how triggers, actions and connectors in Power Automate map onto the same ideas you use in n8n.",
+     "taskIndices": [
+      13
+     ],
+     "sourceUrl": "https://www.youtube.com/watch?v=BykkAIwRX-E",
+     "selection": "focused",
+     "checkedOn": "2026-10-08"
     }
    ],
    "gateChecks": [
@@ -655,6 +775,12 @@
      "gh6cYHwMtIg",
      0,
      0
+    ],
+    [
+     "LLM-as-a-judge with a clear rubric",
+     "t-tR9lqG_ok",
+     0,
+     0
     ]
    ],
    "gate": "Build an LLM classifier or extractor you can prove is good enough.",
@@ -686,6 +812,18 @@
      "sourceUrl": "https://www.youtube.com/watch?v=gh6cYHwMtIg",
      "selection": "focused",
      "checkedOn": "2026-10-06"
+    },
+    {
+     "creator": "Arize AI",
+     "focus": "Learn how to write a specific judge rubric, define labels, and make the judge explain its reasoning before scoring.",
+     "taskIndices": [
+      6,
+      8,
+      13
+     ],
+     "sourceUrl": "https://www.youtube.com/watch?v=t-tR9lqG_ok",
+     "selection": "focused",
+     "checkedOn": "2026-10-08"
     }
    ],
    "gateChecks": [
@@ -760,8 +898,92 @@
      "https://developers.hubspot.com/docs/api/crm/contacts"
     ]
    ],
-   "videos": [],
-   "videoDetails": [],
+   "videos": [
+    [
+     "AI email triage with Slack approval",
+     "AcO4mTUDW6k",
+     0,
+     0
+    ],
+    [
+     "Extract structured data with an n8n AI agent",
+     "2SUPiNmLWdA",
+     0,
+     0
+    ],
+    [
+     "Connect HubSpot and create contacts from n8n",
+     "KzP52kRsRrk",
+     120,
+     390
+    ],
+    [
+     "n8n error workflows",
+     "XEUVl3bbMhI",
+     0,
+     0
+    ],
+    [
+     "Power Automate cloud flows for beginners",
+     "in09HzquU5M",
+     0,
+     0
+    ]
+   ],
+   "videoDetails": [
+    {
+     "creator": "Kris Torrington | AI Automation",
+     "focus": "Follow an email trigger into an AI step with structured output, then a Slack send-and-wait approval before anything is sent.",
+     "taskIndices": [
+      2,
+      7
+     ],
+     "sourceUrl": "https://www.youtube.com/watch?v=AcO4mTUDW6k",
+     "selection": "focused",
+     "checkedOn": "2026-10-08"
+    },
+    {
+     "creator": "n8n",
+     "focus": "See how messy input is turned into clean fields with an output parser, and how agent errors are routed instead of crashing.",
+     "taskIndices": [
+      2,
+      3
+     ],
+     "sourceUrl": "https://www.youtube.com/watch?v=2SUPiNmLWdA",
+     "selection": "focused",
+     "checkedOn": "2026-10-08"
+    },
+    {
+     "creator": "WebSensePro",
+     "focus": "Set up a HubSpot private-app token and create a contact from n8n.",
+     "taskIndices": [
+      2
+     ],
+     "sourceUrl": "https://www.youtube.com/watch?v=KzP52kRsRrk",
+     "selection": "chapter",
+     "checkedOn": "2026-10-08"
+    },
+    {
+     "creator": "n8n",
+     "focus": "Set up a central error workflow so failed runs alert you with enough detail to fix them.",
+     "taskIndices": [
+      3
+     ],
+     "sourceUrl": "https://www.youtube.com/watch?v=XEUVl3bbMhI",
+     "selection": "focused",
+     "checkedOn": "2026-10-08"
+    },
+    {
+     "creator": "Lisa Crosbie",
+     "focus": "Learn triggers, actions, dynamic content and automated flows so you can rebuild your n8n flow's core.",
+     "taskIndices": [
+      5
+     ],
+     "sourceUrl": "https://www.youtube.com/watch?v=in09HzquU5M",
+     "selection": "focused",
+     "checkedOn": "2026-10-08"
+    }
+   ],
    "gate": "Ship a client-style case study a recruiter understands in two minutes.",
    "gateChecks": [
     "Public repo with the workflow JSON (no credentials) and a clear README",
@@ -1128,8 +1350,8 @@
      0
     ],
     [
-     "Unit tests & mocking external calls",
-     "6tNS--WetLI",
+     "pytest, monkeypatching & mocking API calls",
+     "EIV_ixKGPmc",
      0,
      0
     ],
@@ -1144,6 +1366,12 @@
      "Kg1Yvry_Ydk",
      0,
      0
+    ],
+    [
+     "JSON logs with extra context",
+     "9L77QExPmI0",
+     757,
+     1030
     ]
    ],
    "gate": "Write and test a small Python integration on your own.",
@@ -1171,15 +1399,15 @@
      "checkedOn": "2026-10-06"
     },
     {
-     "creator": "Corey Schafer",
-     "focus": "Isolate behaviour and mock dependencies; the video uses unittest, while your exercises use pytest.",
+     "creator": "ArjanCodes",
+     "focus": "Watch how a weather-API client is tested without real network calls using monkeypatch, mocks, fixtures and parametrization.",
      "taskIndices": [
       9,
       10
      ],
-     "sourceUrl": "https://www.youtube.com/watch?v=6tNS--WetLI",
+     "sourceUrl": "https://www.youtube.com/watch?v=EIV_ixKGPmc",
      "selection": "focused",
-     "checkedOn": "2026-10-06"
+     "checkedOn": "2026-10-08"
     },
     {
      "creator": "Corey Schafer",
@@ -1200,6 +1428,16 @@
      "sourceUrl": "https://www.youtube.com/watch?v=Kg1Yvry_Ydk",
      "selection": "focused",
      "checkedOn": "2026-10-06"
+    },
+    {
+     "creator": "mCoding",
+     "focus": "See how to emit JSON log lines and attach extra fields like an event or correlation ID.",
+     "taskIndices": [
+      4
+     ],
+     "sourceUrl": "https://www.youtube.com/watch?v=9L77QExPmI0",
+     "selection": "chapter",
+     "checkedOn": "2026-10-08"
     }
    ],
    "gateChecks": [
@@ -1464,8 +1702,8 @@
      0
     ],
     [
-     "Unit tests & mocking external calls",
-     "6tNS--WetLI",
+     "pytest, monkeypatching & mocking API calls",
+     "EIV_ixKGPmc",
      0,
      0
     ]
@@ -1506,14 +1744,14 @@
      "checkedOn": "2026-10-06"
     },
     {
-     "creator": "Corey Schafer",
-     "focus": "Isolate behaviour and mock dependencies; the video uses unittest, while your exercises use pytest.",
+     "creator": "ArjanCodes",
+     "focus": "Watch how a weather-API client is tested without real network calls using monkeypatch, mocks, fixtures and parametrization.",
      "taskIndices": [
       10
      ],
-     "sourceUrl": "https://www.youtube.com/watch?v=6tNS--WetLI",
+     "sourceUrl": "https://www.youtube.com/watch?v=EIV_ixKGPmc",
      "selection": "focused",
-     "checkedOn": "2026-10-06"
+     "checkedOn": "2026-10-08"
     }
    ],
    "gateChecks": [
@@ -1614,8 +1852,8 @@
      0
     ],
     [
-     "OpenTelemetry: metrics & traces",
-     "hLvwoow3XTk",
+     "Distributed tracing across services",
+     "azyVG0T1aVc",
      0,
      0
     ],
@@ -1624,6 +1862,12 @@
      "8sTuCPh3s0s",
      0,
      0
+    ],
+    [
+     "JSON logs with extra context",
+     "9L77QExPmI0",
+     757,
+     1030
     ]
    ],
    "gate": "Run your stack like production.",
@@ -1651,16 +1895,15 @@
      "checkedOn": "2026-10-06"
     },
     {
-     "creator": "IBM Technology",
-     "focus": "Understand instrumentation and how telemetry helps explain behaviour across services.",
+     "creator": "Adam Gardner",
+     "focus": "Follow how one trace ID travels between a FastAPI service and its outbound requests so you can stitch a request together end to end.",
      "taskIndices": [
       4,
-      5,
-      6
+      5
      ],
-     "sourceUrl": "https://www.youtube.com/watch?v=hLvwoow3XTk",
+     "sourceUrl": "https://www.youtube.com/watch?v=azyVG0T1aVc",
      "selection": "focused",
-     "checkedOn": "2026-10-06"
+     "checkedOn": "2026-10-08"
     },
     {
      "creator": "Arpit Bhayani",
@@ -1672,6 +1915,17 @@
      "sourceUrl": "https://www.youtube.com/watch?v=8sTuCPh3s0s",
      "selection": "focused",
      "checkedOn": "2026-10-06"
+    },
+    {
+     "creator": "mCoding",
+     "focus": "See how to emit JSON log lines and attach extra fields like an event or correlation ID.",
+     "taskIndices": [
+      4,
+      6
+     ],
+     "sourceUrl": "https://www.youtube.com/watch?v=9L77QExPmI0",
+     "selection": "chapter",
+     "checkedOn": "2026-10-08"
     }
    ],
    "gateChecks": [
@@ -2260,8 +2514,8 @@
      0
     ],
     [
-     "OpenTelemetry: metrics & traces",
-     "hLvwoow3XTk",
+     "Correlate logs, metrics & traces",
+     "kft86_LA-Pg",
      0,
      0
     ],
@@ -2309,14 +2563,14 @@
      "checkedOn": "2026-10-06"
     },
     {
-     "creator": "IBM Technology",
-     "focus": "Understand instrumentation and how telemetry helps explain behaviour across services.",
+     "creator": "OpenObserve",
+     "focus": "Watch how you jump from an error log to the failing trace and related metrics instead of searching by hand.",
      "taskIndices": [
       8
      ],
-     "sourceUrl": "https://www.youtube.com/watch?v=hLvwoow3XTk",
+     "sourceUrl": "https://www.youtube.com/watch?v=kft86_LA-Pg",
      "selection": "focused",
-     "checkedOn": "2026-10-06"
+     "checkedOn": "2026-10-08"
     },
     {
      "creator": "n8n",

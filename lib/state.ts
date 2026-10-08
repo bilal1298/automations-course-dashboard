@@ -15,6 +15,7 @@ export function validEntry(key: string, value: unknown): boolean {
   if (key.startsWith('evidence:') && modules.has(key.slice(9))) return typeof value === 'string' && value.length <= 2000;
   if (['career:feedback','career:interviewLog','career:portfolio1','career:portfolio2','career:portfolio3','career:portfolio4'].includes(key)) return typeof value === 'string' && value.length <= 20000;
   if (key === 'career:applications') return validApplications(value);
+  if (key === 'ai:usage') return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}\|\d+$/.test(value);
   if (key === 'pace') return [12,18,24].includes(Number(value)) && typeof value === 'number';
   if (key === 'startDate') return typeof value === 'string' && (value === '' || /^\d{4}-\d{2}-\d{2}$/.test(value));
   if (key === 'resume') return typeof value === 'string' && modules.has(value.split('/')[1]) && /^learn\/m\d{1,2}(?:\/(?:read|watch|practice|gate|learn|quiz|build|prove|videos|notes)(?:\/\d+)?)?$/.test(value);

@@ -4,6 +4,8 @@ import { Check, X, RotateCcw, Trophy } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import type { Question } from '@/lib/lessons';
 import { Inline } from './rich-text';
+import { useApp } from './app-context';
+import { clean, modules } from '@/lib/progress';
 
 // A question plus the shuffled order its options/items are displayed in.
 export type Prepared = Question & { display: number[] };
@@ -65,6 +67,15 @@ export function QuestionCard({ q, onAnswer }: { q: Prepared; onAnswer: (correct:
   </div>;
 }
 
+// Where a question is taught: lesson checks (mX-sN-K) map to lesson N; quiz questions (mX-qK) to the module's lessons.
+export function locate(id: string): { route: string; label: string } | null {
+  const lesson = id.match(/^(m\d+)-s(\d+)-\d+$/);
+  if (lesson) return { route: `learn/${lesson[1]}/learn/${lesson[2]}`, label: `${moduleName(lesson[1])}, lesson ${Number(lesson[2]) + 1}` };
+  const quiz = id.match(/^(m\d+)-q\d+$/);
+  return quiz ? { route: `learn/${quiz[1]}/learn/0`, label: `${moduleName(quiz[1])} lessons` } : null;
+}
+const moduleName = (mid: string) => clean(modules.find(m => m.id === mid)?.title ?? mid).split(/[:,(]/)[0].trim();
+
 export default function QuizRunner({ questions, onAnswer, onFinish, onRestart, onClose, passMark, previousBest }: {
   questions: Prepared[];
   onAnswer: (q: Question, correct: boolean) => void;
@@ -74,6 +85,7 @@ export default function QuizRunner({ questions, onAnswer, onFinish, onRestart, o
   passMark?: number;
   previousBest?: number | null;
 }) {
+  const { go } = useApp();
   const [index, setIndex] = useState(0);
   const [results, setResults] = useState<Record<string, boolean>>({});
   const q = questions[index];
@@ -89,7 +101,7 @@ export default function QuizRunner({ questions, onAnswer, onFinish, onRestart, o
       <span className={`summary-score ${passed ? 'pass' : ''}`}>{passed && passMark !== undefined && <Trophy size={20} />}{score}%</span>
       <h3>{correct} of {questions.length} correct</h3>
       <p className="muted">{passMark === undefined ? 'Missed questions come back in your Today review.' : passed ? 'You passed. Missed questions still come back in your Today review.' : previousBest != null && previousBest >= passMark ? `Below your best of ${previousBest}%, which still counts. Missed questions come back in Today.` : `You need ${passMark}% to pass. Re-read the lessons behind the questions you missed, then retake.`}</p>
-      {missed.length > 0 && <div className="missed"><b>To revisit</b><ul>{missed.map(x => <li key={x.id}><Inline text={x.prompt} /></li>)}</ul></div>}
+      {missed.length > 0 && <div className="missed"><b>To revisit</b><ul>{missed.map(x => { const where = locate(x.id); return <li key={x.id}><Inline text={x.prompt} />{where && <button className="text-button revisit" onClick={() => go(where.route)}>{where.label} →</button>}</li>; })}</ul></div>}
       <div className="button-row">{onRestart && <button className="secondary" onClick={onRestart}><RotateCcw size={16} />Try again</button>}<button className="primary" onClick={onClose}>Done</button></div>
     </div>;
   }

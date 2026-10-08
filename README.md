@@ -21,3 +21,11 @@ A personal learning dashboard for becoming an AI Automation Specialist: 16 modul
 
 1. Import this repo in Vercel and add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` as environment variables.
 2. In Supabase → Authentication → URL Configuration, set **Site URL** to your Vercel domain and add `https://<your-domain>/auth/callback` to **Redirect URLs**.
+
+## Optional: AI feedback
+
+Interview practice and the Career tracker can give written feedback from Claude (`claude-opus-5-5`, low effort, with Anthropic's server-side refusal fallback). It stays hidden until you add an `ANTHROPIC_API_KEY` environment variable in Vercel (from console.anthropic.com, with credit on the account) and redeploy. Each user is limited to 30 requests a day; one request typically costs around two cents.
+
+## Starter kit
+
+`starter-kit/` has hands-on materials for the Build exercises: a fake CRM API, a webhook sender, a practice database and realistic test data. See `starter-kit/README.md`.

@@ -1,5 +1,5 @@
 'use client';
-import { ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, ChevronRight, Circle, Clock3, ExternalLink, FileText, Hammer, Laptop, ListChecks, Lock, NotebookPen, Play, ShieldCheck, Smartphone, Trophy } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, ChevronRight, Circle, Clock3, ExternalLink, FileText, Hammer, Laptop, ListChecks, Lock, NotebookPen, Package, Play, ShieldCheck, Smartphone, Trophy } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { handbook } from '@/lib/handbook';
 import { PASS_MARK } from '@/lib/lessons';
@@ -8,6 +8,7 @@ import { useApp } from './app-context';
 import { QuizPanel, SectionView } from './lesson';
 import VideoPlayer from './video-player';
 import { ModuleGlossary } from './rich-text';
+import { starterKit, starterUrl } from '@/lib/starter-kit';
 
 export type Step = 'learn' | 'quiz' | 'build' | 'prove' | 'videos' | 'notes';
 const videoTime = (seconds: number) => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
@@ -117,12 +118,21 @@ function LearnStep({ m, index }: { m: Module; index: number }) {
 
 /* ---------- Step 3: Build ---------- */
 
+function StarterKit({ m }: { m: Module }) {
+  const items = starterKit[m.id];
+  if (!items) return null;
+  return <div className="starter-kit"><b><Package size={16} />Starter kit for this module</b>
+    <ul>{items.map(x => <li key={x.path + x.what}><a href={starterUrl(x.path)} target="_blank" rel="noopener">{x.what}<ExternalLink size={13} /></a></li>)}</ul>
+    <small>Clone the course repo once, then follow each folder’s instructions in the starter kit README.</small></div>;
+}
+
 function BuildList({ m }: { m: Module }) {
   const { values, go } = useApp();
   const p = moduleProgress(m, values);
   return <>
     <h2 className="step-title">Build it</h2>
     <p className="muted step-intro">Hands-on exercises. Tick each one off when you can do it without help, and save your evidence.{p.lesson && ' 📱 exercises work on your phone.'}</p>
+    <StarterKit m={m} />
     <div className="task-list">{m.tasks.map((t, i) => {
       const plain = p.lesson?.tasks[i];
       return <button key={i} className={`task-row ${taskDone(m, i, values) ? 'done' : ''}`} onClick={() => go(`learn/${m.id}/build/${i}`)}>
@@ -152,6 +162,7 @@ function BuildTask({ m, index }: { m: Module; index: number }) {
     {plain
       ? <><div className="done-looks-like"><b>Done looks like</b><p>{plain.done}</p></div><details className="interview-version"><summary><FileText size={16} />Technical brief</summary><p>{task[1]}</p></details></>
       : <div className="done-looks-like"><b>Done looks like</b><p>{evidenceBrief[task[0]] ?? 'Build it from a clean starting point. Save the code or workflow, demonstrate the happy path, and capture a failure plus the recovery.'}</p></div>}
+    {p.build.done === 0 && i === 0 && <StarterKit m={m} />}
     {related.length > 0 && <div className="related-videos"><h3>Helpful videos</h3><div>{related.map(({ v }) => <button className="secondary" key={v} onClick={() => go(`learn/${m.id}/videos/${v}`)}><Play size={14} />{m.videos[v][0]}</button>)}</div></div>}
     <label className={`completion-row ${done ? 'checked' : ''}`}><Checkbox disabled={!loaded || auto} checked={done} onCheckedChange={v => { change(`${m.id}-${i}`, v === true); if (v !== true) change(`gate:${m.id}`, false); }} /><span><b>I can do this on my own</b><small>{auto ? 'Done: you finished the lessons that cover this.' : 'Tick it when you have evidence, not just familiarity.'}</small></span></label>
     <NextBar back={i > 0 ? ['Previous', `learn/${m.id}/build/${i - 1}`] : undefined} next={last ? ['Next: Prove', `learn/${m.id}/prove`] : ['Next exercise', `learn/${m.id}/build/${i + 1}`]} />

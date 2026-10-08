@@ -162,7 +162,7 @@ Hi, please find our updated invoice attached. Thanks!
         "**Personal data ([[PII]])**: names, emails, phone numbers, addresses. AI systems copy data into more places than you’d expect:",
         "- **Prompts and responses** sent to the model provider (check their retention and training settings).\n- **Traces and logs**, in tools like LangSmith or your own logging.\n- **Embeddings and chunks** in the vector store. They’re made from the text, so treat them as just as sensitive.\n- **Agent memory** and checkpoints.\n- **n8n execution data**, which stores each run’s inputs and outputs.",
         "**Store only what you need.** Don’t embed whole customer records if the bot only needs product docs. Set a **retention period** for each place, and make sure “delete this customer” deletes them from *all* of them, including the vector store. Mask PII in logs where you can.",
-        "**In Australia**, the Privacy Act 1988 and the Australian Privacy Principles apply to personal information you send to AI services. Check where the provider stores and processes data.",
+        "**In Australia**, the Privacy Act 1988 and its Australian Privacy Principles (APPs) cover how most organisations handle personal information, including what they send to AI services (many small businesses are currently exempt, so check). Check where the provider stores and processes data.",
       ],
       example: {
         caption: "A simple data map (example values; yours will differ)",

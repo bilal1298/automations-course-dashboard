@@ -1,6 +1,6 @@
 // Offline support: lessons and your last-loaded progress stay readable without signal.
 // Saving still needs a connection; unsaved changes show "Changes not saved" with a Retry button.
-const CACHE = 'academy-v3';
+const CACHE = 'academy-v4';
 
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', event => event.waitUntil(

@@ -329,7 +329,7 @@ def approve_refund(state):
         return {'status': 'needs_new_approval'}
     return {'approved_action': action}
 
-# later, when the person clicks Approve:
+# later, when the person clicks Approve (h = hash_of the action they saw):
 graph.invoke(Command(resume={'approved': True, 'action_hash': h}), config)`,
       },
       interview: "I put an interrupt before every irreversible write, persist the proposed tool call, and show the reviewer the exact tool, arguments and target. The approval is bound to a hash of those arguments and re-verified at execution; any change requires re-approval. Because the node re-executes on resume, nothing with side effects runs before the interrupt, and server-side authorisation still applies after approval.",
@@ -450,9 +450,10 @@ tool-selection accuracy: 2/4 = 50%  → fix descriptions, re-run`,
       ],
       example: {
         caption: "A tiny MCP server with a read tool and a protected write tool (official Python SDK)",
-        code: `from mcp.server.fastmcp import FastMCP
+        code: `# pip install mcp  (v2; in v1 this class was called FastMCP)
+from mcp.server.mcpserver import MCPServer
 
-mcp = FastMCP('crm')
+mcp = MCPServer('crm')
 
 @mcp.tool()
 def get_contact(email: str) -> dict:

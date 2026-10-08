@@ -10,6 +10,7 @@ export type App = {
   go: (path: string) => void;
   answer: (q: Question, correct: boolean) => void;
   openDoc: (doc: string[]) => void;
+  aiEnabled: boolean;
 };
 
 export const AppContext = createContext<App | null>(null);

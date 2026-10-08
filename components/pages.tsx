@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useApp } from './app-context';
 import Applications from './applications';
 import MockInterview from './mock-interview';
+import AiFeedback from './ai-feedback';
 import { interviewCategories, interviewQuestions } from '@/lib/interview-bank';
 
 export function InterviewPage() {
@@ -37,7 +38,7 @@ export function InterviewPage() {
       <span className="chip">{q[0]}</span>
       <h2>{q[1]}</h2>
       <p className="muted">Take 2–3 minutes. Clarify assumptions and talk about what could fail.</p>
-      {revealed ? <div className="answer"><h3>A strong answer covers</h3><p>{q[2]}</p></div> : <button className="primary" onClick={() => setRevealed(true)}>Show answer guide</button>}
+      {revealed ? <><div className="answer"><h3>A strong answer covers</h3><p>{q[2]}</p></div><AiFeedback key={q[1]} kind="interview" question={q[1]} guide={q[2]} label="Want feedback? Type or dictate your answer" placeholder="Tip: use your keyboard’s microphone to dictate what you said." /></> : <button className="primary" onClick={() => setRevealed(true)}>Show answer guide</button>}
       <div className="next-bar"><button className="secondary" disabled={index === 0} onClick={() => move(-1)}>Previous</button><button className="secondary" onClick={() => move(1)}>Next question</button></div>
     </div></>}
     <section className="surface">
@@ -55,6 +56,12 @@ export function InterviewPage() {
 // Portfolio projects in the order they're built; storage keys predate the case study, hence portfolio4 first.
 const portfolio = [['m17', 'portfolio4'], ['m11', 'portfolio1'], ['m12', 'portfolio2'], ['m13', 'portfolio3']];
 
+function AiFeedbackSection() {
+  const { aiEnabled } = useApp();
+  if (!aiEnabled) return null;
+  return <section className="surface"><h2>Check your writing</h2><p className="muted">Paste a CV bullet, LinkedIn About or outreach message. You get a verdict, what to fix and a truthful rewrite.</p><AiFeedback kind="cv" label="Your text" placeholder="e.g. Built n8n workflows for the sales team…" /></section>;
+}
+
 export function CareerPage() {
   const { values, change, loaded, go } = useApp();
   const metrics: [string, string, typeof BriefcaseBusiness][] = [['outreach', 'Outreach messages sent', MessageSquare], ['mocks', 'Mock interviews done', GraduationCap]];
@@ -66,6 +73,7 @@ export function CareerPage() {
       <input type="number" inputMode="numeric" min={0} max={100000} disabled={!loaded} aria-label={label} value={Number(values[`career:${id}`]) || 0} onChange={e => { const n = Number(e.target.value); if (Number.isInteger(n) && n >= 0 && n <= 100000) change(`career:${id}`, n); }} />
     </label>)}</div>
     <Applications />
+    <AiFeedbackSection />
     <section className="surface">
       <h2>Your portfolio</h2>
       <p className="muted">Link each capstone’s repository or demo.</p>

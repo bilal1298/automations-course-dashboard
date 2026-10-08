@@ -162,7 +162,7 @@ export const m15: Lesson = {
         "**Headline:** the title you want, plus proof. For example: `AI Automation Specialist | n8n, APIs, LLM workflows | Built a lead-intake system for a local clinic`. Only list tools you can discuss in an interview.",
         "**About:** three short paragraphs. What you do and the problems you solve. Your case study and anything else you’ve built, with honest results. The kind of role you want, and a link to your portfolio.",
         "**Skills:** add the exact terms from ads you genuinely match: n8n, REST APIs, webhooks, HubSpot, LLMs, Power Automate. Use the ads’ wording, but don’t stuff in tools you can’t talk about.",
-        "**Saved searches.** Make one per exact title and turn on job alerts: “AI Automation Specialist”, “Automation Engineer n8n”, “AI Implementation Specialist”, “AI Workflow Engineer”, “GenAI Automation”, “Agentic AI Developer”, “Solutions Engineer AI”. Quotes around a phrase match it exactly. [[Boolean search]] with OR and NOT combines or excludes terms.",
+        "**Saved searches.** Make one per exact title and turn on job alerts: “AI Automation Specialist”, “Automation Engineer n8n”, “AI Implementation Specialist”, “AI Workflow Engineer”, “GenAI Automation”, “Agentic AI Developer”, “Solutions Engineer AI”. Quotes around a phrase match it exactly. [[Boolean search]] with AND, OR and NOT combines or excludes terms. Support varies by site, so check each string returns sensible results.",
         "**Read the ad, not the title.** Job ads are often wish lists. If you match the core must-haves and can show evidence for them, apply.",
       ],
       example: {
