@@ -8,6 +8,7 @@ import { useApp } from './app-context';
 import { QuizPanel, SectionView } from './lesson';
 import VideoPlayer from './video-player';
 import { ModuleGlossary } from './rich-text';
+import { NoteList, useNotes } from './notes';
 import { starterKit, starterUrl } from '@/lib/starter-kit';
 
 export type Step = 'learn' | 'quiz' | 'build' | 'prove' | 'videos' | 'notes';
@@ -214,12 +215,19 @@ function VideosPage({ m, index }: { m: Module; index: number }) {
   </>;
 }
 
+function ModuleNotes({ mid }: { mid: string }) {
+  const { notes } = useNotes();
+  return <NoteList items={notes.filter(n => n.module === mid)} empty="No quick notes in this module yet." />;
+}
+
 function NotesPage({ m }: { m: Module }) {
   const { values, change, loaded } = useApp();
   const note = String(values[`note:${m.id}`] || '');
   return <>
     <h2 className="step-title">My notes</h2>
-    <p className="muted step-intro">Evidence links, debugging notes and questions to revisit. Saves automatically.</p>
+    <p className="muted step-intro">Quick notes you took in this module (add more with the + Note button), and a free-form notebook below.</p>
+    <ModuleNotes mid={m.id} />
+    <h3 className="notebook-title">Notebook</h3>
     <textarea className="notes-box" aria-label={`Notes for ${clean(m.title)}`} disabled={!loaded} maxLength={20000} value={note} onChange={e => change(`note:${m.id}`, e.target.value)} placeholder={'What I built\n\nEvidence / repository link\n\nWhat failed and how I fixed it\n\nWhat I need to revisit'} rows={16} />
     <p className="muted">{note.length.toLocaleString()} / 20,000 characters</p>
   </>;

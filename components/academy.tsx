@@ -1,6 +1,6 @@
 'use client';
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
-import { BookOpen, BriefcaseBusiness, CalendarCheck, Circle, CloudCheck, ExternalLink, LoaderCircle, MessageSquare, RotateCw, Settings2, X } from 'lucide-react';
+import { NotebookPen, BookOpen, BriefcaseBusiness, CalendarCheck, Circle, CloudCheck, ExternalLink, LoaderCircle, MessageSquare, RotateCw, Settings2, X } from 'lucide-react';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -13,18 +13,20 @@ import Course from './course';
 import { ModuleOverview, StepPage, type Step } from './module';
 import { CareerPage, InterviewPage, SettingsPage } from './pages';
 import Today from './today';
+import { NotesView, QuickNoteButton } from './notes';
 
 const nav = [
   { id: 'today', label: 'Today', icon: CalendarCheck },
   { id: 'home', label: 'Course', icon: BookOpen },
+  { id: 'notes', label: 'Notes', icon: NotebookPen },
   { id: 'interview', label: 'Interview', icon: MessageSquare },
   { id: 'career', label: 'Career', icon: BriefcaseBusiness },
 ];
-const titles: Record<string, string> = { today: 'Today', home: 'Course', learn: 'Course', interview: 'Interview practice', career: 'Career tracker', settings: 'Settings' };
+const titles: Record<string, string> = { notes: 'Notes', today: 'Today', home: 'Course', learn: 'Course', interview: 'Interview practice', career: 'Career tracker', settings: 'Settings' };
 
 // Old bookmarks used read/watch/practice/gate; map them onto the four-step names.
 const legacy: Record<string, string> = { read: 'learn', watch: 'videos', practice: 'build', gate: 'prove' };
-const routePattern = /^(today|home|interview|career|settings|learn\/m\d{1,2}(\/(learn|quiz|build|prove|videos|notes)(\/\d+)?)?)$/;
+const routePattern = /^(notes|today|home|interview|career|settings|learn\/m\d{1,2}(\/(learn|quiz|build|prove|videos|notes)(\/\d+)?)?)$/;
 function normalise(path: string, phone: boolean) {
   const fixed = path.replace(/^(learn\/m\d+\/)(read|watch|practice|gate)\b/, (_, a, b) => a + legacy[b]);
   if (routePattern.test(fixed)) return fixed;
@@ -161,7 +163,7 @@ export default function Academy({ email, aiEnabled = false }: { email: string; a
     <div className="app-body">
       <header className="topbar">
         <div className="breadcrumbs"><SidebarTrigger className="desktop-only" /><b>{titles[view]}</b></div>
-        <div className="save-status" role="status">{status === 'Saving' || !loaded && !error ? <LoaderCircle className="spin" size={15} /> : loaded && !error ? <CloudCheck size={16} /> : <Circle size={14} />}<span>{status}</span></div>
+        <div className="topbar-right"><div className="save-status" role="status">{status === 'Saving' || !loaded && !error ? <LoaderCircle className="spin" size={15} /> : loaded && !error ? <CloudCheck size={16} /> : <Circle size={14} />}<span>{status}</span></div><button className="icon-button mobile-only" aria-label="Settings" onClick={() => go('settings')}><Settings2 size={20} /></button></div>
       </header>
       {error && <div className="error-banner" role="alert"><span>{error}</span>{unauth ? <a href="/login">Sign in</a> : <button onClick={() => { if (loaded) void flush(); else { setStatus('Loading progress'); void load(); } }}><RotateCw size={15} />Retry</button>}</div>}
       {notice && <div className="notice" role="status">{notice.startsWith('Progress imported') && status === 'All changes saved' ? 'Progress imported and saved.' : notice}<button aria-label="Dismiss" onClick={() => setNotice('')}><X size={16} /></button></div>}
@@ -172,11 +174,13 @@ export default function Academy({ email, aiEnabled = false }: { email: string; a
       {view === 'learn' && current && (step ? <StepPage key={route} m={current} step={step as Step} index={index === undefined ? -1 : Number(index)} /> : <ModuleOverview m={current} />)}
       {view === 'interview' && <InterviewPage />}
       {view === 'career' && <CareerPage />}
+      {view === 'notes' && <NotesView />}
+      {view === 'learn' && current && <QuickNoteButton route={route} />}
       {view === 'settings' && <SettingsPage email={email} exportProgress={exportProgress} onImport={setImportData} />}
       </>}
 
       <nav className="mobile-tabbar" aria-label="Main">
-        {[...nav, { id: 'settings', label: 'Settings', icon: Settings2 }].map(({ id, label, icon: Icon }) => <button key={id} className={active(id) ? 'active' : ''} aria-current={active(id) ? 'page' : undefined} onClick={() => go(id)}><Icon size={21} /><span>{label}</span></button>)}
+        {nav.map(({ id, label, icon: Icon }) => <button key={id} className={active(id) ? 'active' : ''} aria-current={active(id) ? 'page' : undefined} onClick={() => go(id)}><Icon size={21} /><span>{label}</span></button>)}
       </nav>
     </div>
 

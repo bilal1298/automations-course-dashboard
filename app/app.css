@@ -560,6 +560,53 @@ html { scroll-padding-top: 70px; }
 .app-body-fields .muted a { color: var(--blue); }
 .text-button.danger { color: var(--red); align-self: flex-start; }
 
+/* ---------- Quick notes ---------- */
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.icon-button { display: grid; place-items: center; width: 40px; height: 40px; border: 0; background: none; border-radius: 10px; color: var(--muted-ink); }
+.icon-button:hover { background: #f1f4f9; }
+.mobile-only { display: none; }
+.note-fab { position: fixed; right: 24px; bottom: 24px; z-index: 35; display: flex; align-items: center; gap: 6px; height: 50px; padding: 0 18px 0 14px; border: 0; border-radius: 999px; background: var(--blue); color: #fff; font-weight: 650; font-size: 15px; box-shadow: 0 8px 24px rgba(40,85,232,.35); }
+.note-fab:hover:not(:disabled) { background: var(--blue-dark); }
+.note-sheet { border-radius: 18px 18px 0 0; max-height: 90dvh; padding-bottom: env(safe-area-inset-bottom) !important; }
+.note-sheet [data-slot=sheet-header] { padding-bottom: 0; }
+.note-form { display: flex; flex-direction: column; gap: 12px; padding: 0 16px 20px; max-width: 720px; width: 100%; margin: 0 auto; }
+.note-types { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.note-type { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left; padding: 10px; border: 1.5px solid var(--line-strong); border-radius: 12px; background: #fff; color: var(--muted-ink); }
+.note-type b { display: block; font-size: 14px; color: var(--ink); }
+.note-type small { display: block; font-size: 11.5px; line-height: 1.35; }
+.note-type.on.note { border-color: var(--blue); background: var(--blue-soft); color: var(--blue); }
+.note-type.on.question { border-color: #b7791f; background: var(--amber-soft); color: #9a5b12; }
+.note-type.on.todo { border-color: var(--green); background: var(--green-soft); color: var(--green); }
+.note-filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.note-filters button { border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 7px 13px; font-size: 14px; font-weight: 600; color: var(--muted-ink); }
+.note-filters button.on { background: var(--blue-soft); border-color: var(--blue-line); color: var(--blue); }
+.note-filters span { font-size: 12px; opacity: .8; margin-left: 2px; }
+.note-list { list-style: none; padding: 0; margin: 0 0 12px; display: flex; flex-direction: column; gap: 8px; }
+.note-item { display: flex; gap: 12px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius-card); padding: 14px; }
+.note-item.done { opacity: .6; }
+.note-item.done .note-body p { text-decoration: line-through; }
+.note-icon { flex: none; width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: var(--blue-soft); color: var(--blue); }
+.note-item.question .note-icon { background: var(--amber-soft); color: #9a5b12; }
+.note-item.todo .note-icon { background: var(--green-soft); color: var(--green); }
+.note-body { flex: 1; min-width: 0; }
+.note-body p { font-size: 15.5px; color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere; }
+.note-body small { display: block; font-size: 12.5px; color: var(--muted-ink); margin-top: 4px; }
+.note-link { border: 0; background: none; padding: 0; font: inherit; color: var(--blue); text-decoration: underline; text-underline-offset: 2px; text-align: left; }
+.note-actions { display: flex; gap: 8px; margin-top: 8px; }
+.note-done { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--line-strong); background: #fff; border-radius: 999px; padding: 4px 11px; font-size: 13px; font-weight: 600; color: var(--muted-ink); }
+.note-done.on { background: var(--green-soft); border-color: var(--green-line); color: var(--green); }
+.note-delete { border: 0; background: none; color: var(--faint); padding: 4px 8px; margin-left: auto; }
+.note-delete:hover { color: var(--red); }
+.note-empty { margin: 4px 0 16px; }
+.notebook-title { font-size: 15px; margin: 22px 0 8px; }
+.show-done { margin-top: 4px; }
+@media (max-width: 767px) {
+  .mobile-only { display: grid; }
+  .note-fab { right: 16px; bottom: calc(84px + env(safe-area-inset-bottom)); height: 46px; z-index: 45; }
+  .content.step-page, .content.module-page { padding-bottom: 110px; }
+  .note-types small { display: none; }
+}
+
 /* ---------- AI feedback ---------- */
 .ai-feedback { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
 .ai-feedback .field-label { margin: 0; }

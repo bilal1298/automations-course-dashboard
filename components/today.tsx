@@ -7,6 +7,7 @@ import type { Stored } from '@/lib/state';
 import { isDue, isMastered, parse } from '@/lib/srs';
 import QuizRunner, { prepare, type Prepared } from './quiz';
 import type { AnswerFn } from './lesson';
+import { OpenNotesCard } from './notes';
 import { currentModule, learnState, modules, sectionDone } from '@/lib/progress';
 
 const clean = (t: string) => t.replace(/^\d+\. /, '');
@@ -61,6 +62,8 @@ export default function Today({ values, answer, go, loaded }: { values: Stored; 
       <div><h2>Quick practice</h2><p className="muted">5 questions from lessons you’ve finished, the ones you missed first.</p></div>
       <button className="secondary" disabled={!loaded} onClick={() => run('Quick practice', practicePool.slice(0, 5))}>Practise</button>
     </section>}
+
+    <OpenNotesCard />
 
     {phoneTasks.length > 0 && <section className="today-card column">
       <div className="row"><span className="small-icon"><Smartphone size={20} /></span><div><h2>Phone-friendly exercises</h2><p className="muted">Things you can finish without a computer.</p></div></div>
