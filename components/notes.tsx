@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { Check, CircleHelp, ListTodo, NotebookPen, Plus, StickyNote, Trash2 } from 'lucide-react';
+import { Check, CircleHelp, Pencil, ListTodo, NotebookPen, Plus, StickyNote, Trash2 } from 'lucide-react';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { lessons } from '@/lib/lessons';
 import { noteTypes, parseNotes, type NoteType, type QuickNote } from '@/lib/notes';
@@ -73,16 +73,32 @@ export function NoteList({ items, empty }: { items: QuickNote[]; empty: string }
   const { go, loaded } = useApp();
   const { notes, save } = useNotes();
   const update = (id: string, patch: Partial<QuickNote>) => save(notes.map(n => n.id === id ? { ...n, ...patch } : n));
+  const [editing, setEditing] = useState<{ id: string; text: string; type: NoteType } | null>(null);
+  const saveEdit = () => {
+    if (!editing || !editing.text.trim()) return;
+    const before = notes.find(n => n.id === editing.id);
+    // Changing the type resets "done", since answered/done means different things per type.
+    update(editing.id, { text: editing.text.trim().slice(0, 4000), type: editing.type, edited: new Date().toISOString(), ...(before && before.type !== editing.type ? { done: false } : {}) });
+    setEditing(null);
+  };
   if (!items.length) return <p className="muted note-empty">{empty}</p>;
   return <ul className="note-list">{items.map(n => { const Icon = icons[n.type]; return <li key={n.id} className={`note-item ${n.type} ${n.done ? 'done' : ''}`}>
     <span className="note-icon"><Icon size={16} /></span>
     <div className="note-body">
+      {editing?.id === n.id ? <div className="note-edit">
+        <TypePicker value={editing.type} onChange={type => setEditing({ ...editing, type })} />
+        <textarea autoFocus rows={4} maxLength={4000} aria-label="Edit note" value={editing.text} onChange={e => setEditing({ ...editing, text: e.target.value })}
+          onKeyDown={e => { if (e.key === 'Escape') setEditing(null); if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) saveEdit(); }} />
+        <div className="button-row"><button className="primary" disabled={!loaded || !editing.text.trim()} onClick={saveEdit}>Save</button><button className="secondary" onClick={() => setEditing(null)}>Cancel</button></div>
+      </div> : <>
       <p>{n.text}</p>
-      <small>{new Date(n.created).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}{n.where && <> · <button className="note-link" onClick={() => n.route && go(n.route)}>{n.where}</button></>}</small>
+      <small>{new Date(n.created).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}{n.edited && ' (edited)'}{n.where && <> · <button className="note-link" onClick={() => n.route && go(n.route)}>{n.where}</button></>}</small>
       <div className="note-actions">
         {n.type !== 'note' && <button className={`note-done ${n.done ? 'on' : ''}`} disabled={!loaded} onClick={() => update(n.id, { done: !n.done })}><Check size={14} />{n.done ? doneLabel[n.type] : n.type === 'todo' ? 'Mark done' : 'Mark answered'}</button>}
+        <button className="note-edit-btn" disabled={!loaded} onClick={() => setEditing({ id: n.id, text: n.text, type: n.type })}><Pencil size={14} />Edit</button>
         <button className="note-delete" disabled={!loaded} aria-label="Delete note" onClick={() => { if (confirm('Delete this note?')) save(notes.filter(x => x.id !== n.id)); }}><Trash2 size={14} /></button>
       </div>
+      </>}
     </div>
   </li>; })}</ul>;
 }

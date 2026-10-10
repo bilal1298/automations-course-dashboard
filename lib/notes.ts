@@ -12,6 +12,7 @@ export type QuickNote = {
   text: string;
   created: string; // ISO date-time
   done: boolean; // to-do done / question answered
+  edited?: string; // ISO date-time of the last edit
   module?: string; // module id it was written in
   route?: string; // the page it was written on, to jump back
   where?: string; // human-readable place, e.g. "SQL module · Lesson 3: Transactions"
@@ -29,6 +30,6 @@ export function validNotes(value: unknown): boolean {
     return Array.isArray(list) && list.length <= 1000 && list.every(n => n && typeof n === 'object'
       && typeof n.id === 'string' && n.type in noteTypes && typeof n.text === 'string' && n.text.length <= 4000
       && typeof n.created === 'string' && typeof n.done === 'boolean'
-      && ['module', 'route', 'where'].every(k => n[k] === undefined || (typeof n[k] === 'string' && n[k].length <= 300)));
+      && ['module', 'route', 'where', 'edited'].every(k => n[k] === undefined || (typeof n[k] === 'string' && n[k].length <= 300)));
   } catch { return false; }
 }

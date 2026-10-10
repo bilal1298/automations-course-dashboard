@@ -595,6 +595,10 @@ html { scroll-padding-top: 70px; }
 .note-actions { display: flex; gap: 8px; margin-top: 8px; }
 .note-done { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--line-strong); background: #fff; border-radius: 999px; padding: 4px 11px; font-size: 13px; font-weight: 600; color: var(--muted-ink); }
 .note-done.on { background: var(--green-soft); border-color: var(--green-line); color: var(--green); }
+.note-edit-btn { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--line-strong); background: #fff; border-radius: 999px; padding: 4px 11px; font-size: 13px; font-weight: 600; color: var(--muted-ink); }
+.note-edit-btn:hover:not(:disabled) { border-color: var(--blue-line); color: var(--blue); }
+.note-edit { display: flex; flex-direction: column; gap: 10px; }
+.note-item:has(.note-edit) { opacity: 1; }
 .note-delete { border: 0; background: none; color: var(--faint); padding: 4px 8px; margin-left: auto; }
 .note-delete:hover { color: var(--red); }
 .note-empty { margin: 4px 0 16px; }
